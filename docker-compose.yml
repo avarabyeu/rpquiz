@@ -1,0 +1,9 @@
+version: '3'
+
+services:
+  rpquiz:
+    build:
+      context: .
+      args:
+      - version=1
+    restart: on-failure

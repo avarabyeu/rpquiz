@@ -1,0 +1,22 @@
+FROM golang:1.10.3-alpine
+WORKDIR /go/src/github.com/avarabyeu/rpquiz
+
+RUN apk add --update --no-cache \
+      build-base git curl \
+      ca-certificates
+
+#RUN curl https://glide.sh/get | sh && \
+RUN go get -v github.com/oxequa/realize github.com/alecthomas/gometalinter && \
+    gometalinter --install
+
+
+## Take service name from compose file to have only one Dockerfile for each Golang-based microservice
+ARG service
+
+## Since Docker does not accept ARG in CMD block, assign ARG to ENV variable
+ENV SERVICE_NAME $service
+
+#COPY Makefile glide.lock glide.yaml ./
+#RUN glide install --strip-vendor
+
+CMD ["make", "run", "service=${SERVICE_NAME}"]

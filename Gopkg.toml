@@ -1,0 +1,63 @@
+# Gopkg.toml example
+#
+# Refer to https://golang.github.io/dep/docs/Gopkg.toml.html
+# for detailed Gopkg.toml documentation.
+#
+# required = ["github.com/user/thing/cmd/thing"]
+# ignored = ["github.com/user/project/pkgX", "bitbucket.org/user/project/pkgA/pkgY"]
+#
+# [[constraint]]
+#   name = "github.com/user/project"
+#   version = "1.0.0"
+#
+# [[constraint]]
+#   name = "github.com/user/project2"
+#   branch = "dev"
+#   source = "github.com/myfork/project2"
+#
+# [[override]]
+#   name = "github.com/x/y"
+#   version = "2.4.0"
+#
+# [prune]
+#   non-go = false
+#   go-tests = true
+#   unused-packages = true
+
+
+[prune]
+  go-tests = true
+  unused-packages = true
+
+[[constraint]]
+  name = "go.uber.org/fx"
+  version = "1.7.0"
+
+[[constraint]]
+  name = "github.com/apex/log"
+  version = "1.0.0"
+
+[[constraint]]
+  name = "github.com/go-chi/chi"
+  version = "3.3.2"
+
+[[constraint]]
+  name = "github.com/caarlos0/env"
+  version = "3.3.0"
+
+[[constraint]]
+  branch = "master"
+  name = "google.golang.org/genproto"
+
+[[constraint]]
+  name = "github.com/golang/protobuf"
+  version = "1.2.0"
+
+[[constraint]]
+  name = "github.com/coreos/bbolt"
+  version = "1.3.0"
+
+[[constraint]]
+  name = "github.com/avarabyeu/gorp"
+#  version = "1.0.0"
+  branch = "master"
