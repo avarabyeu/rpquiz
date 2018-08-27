@@ -37,49 +37,12 @@
   version = "v1.3.0"
 
 [[projects]]
-  digest = "1:4eda9f7bf70f5145b3b9ed3f18ac93e9b1a0e38906eb69e526380c34861e2b07"
+  digest = "1:b9914f85d95a0968bafd1be1908ba29e2eafafd88d6fd13696be42bf5368c380"
   name = "github.com/go-chi/chi"
-  packages = [
-    ".",
-    "middleware",
-  ]
-  pruneopts = "UT"
-  revision = "e83ac2304db3c50cf03d96a2fcd39009d458bc35"
-  version = "v3.3.2"
-
-[[projects]]
-  digest = "1:54d7b4b9ab2bb2bae35b55eea900bc8fe15cba05a95fc78bf7fd7b82a9a07afa"
-  name = "github.com/go-chi/render"
   packages = ["."]
   pruneopts = "UT"
-  revision = "3215478343fbc559bd3fc08f7031bb134d6bdad5"
-  version = "v1.0.1"
-
-[[projects]]
-  digest = "1:65ab4f1f8c0e5398fe0fff5fa6faa12640a7bb544bde08c5494a0e9899712635"
-  name = "github.com/go-siris/siris"
-  packages = ["core/errors"]
-  pruneopts = "UT"
-  revision = "d6bc3df4b216199bec985043ca6c3e5c00232fd5"
-  version = "v7.4.0"
-
-[[projects]]
-  digest = "1:fce9b252e844078774d9bc017acfba0e961e104f268859b23e277d3d23270202"
-  name = "github.com/golang/protobuf"
-  packages = [
-    "jsonpb",
-    "proto",
-    "protoc-gen-go/descriptor",
-    "ptypes",
-    "ptypes/any",
-    "ptypes/duration",
-    "ptypes/empty",
-    "ptypes/struct",
-    "ptypes/timestamp",
-  ]
-  pruneopts = "UT"
-  revision = "aa810b61a9c79d51363740d207bb46cf8e620ed5"
-  version = "v1.2.0"
+  revision = "b5294d10673813fac8558e7f47242bc9e61b4c25"
+  version = "v3.3.3"
 
 [[projects]]
   digest = "1:40e195917a951a8bf867cd05de2a46aaf1806c50cf92eebf4c16f78cd196f747"
@@ -88,14 +51,6 @@
   pruneopts = "UT"
   revision = "645ef00459ed84a119197bfb8d8205042c6df63d"
   version = "v0.8.0"
-
-[[projects]]
-  branch = "master"
-  digest = "1:ff6b0586c0621a76832cf783eee58cbb9d9795d2ce8acbc199a4131db11c42a9"
-  name = "github.com/satori/go.uuid"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "36e9d2ebbde5e3f13ab2e25625fd453271d6522e"
 
 [[projects]]
   digest = "1:d867dfa6751c8d7a435821ad3b736310c2ed68945d05b50fb9d23aee0540c8cc"
@@ -164,31 +119,25 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:9e718a0da6d7ed1d59b0678fb6fd311dacfd2df4d30b1cb0983fe97490aed596"
+  digest = "1:a412caf33b5d3c7938c28e1e745c10664bd180277b73ab3b34c0c467886f9969"
   name = "golang.org/x/net"
   packages = [
-    "context",
-    "http/httpguts",
-    "http2",
-    "http2/hpack",
     "idna",
-    "internal/timeseries",
     "publicsuffix",
-    "trace",
   ]
   pruneopts = "UT"
-  revision = "faa378e6dbaed88bd8100f8bcf09939375c6e8fa"
+  revision = "8a410e7b638dca158bf9e766925842f6651ff828"
 
 [[projects]]
   branch = "master"
-  digest = "1:7710ea76bd73d3154e86eaf2db8b36a6dffbd6114e4e37b516f1d232c03ddd8d"
+  digest = "1:0dafafed83f125cdc945a014b2dec15e5b5d8cd2d77a2d1e3763120b08ab381b"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
   pruneopts = "UT"
-  revision = "11551d06cbcc94edc80a0facaccbda56473c19c1"
+  revision = "4910a1d54f876d7b22162a85f4d066d3ee649450"
 
 [[projects]]
   digest = "1:a2ab62866c75542dd18d2b069fec854577a20211d7c0ea6ae746072a1dccdd18"
@@ -214,62 +163,12 @@
   version = "v0.3.0"
 
 [[projects]]
-  branch = "master"
-  digest = "1:f8be9fd3caa8590a46477b2a3566e82ad0986aac4c04e8e8e764bf3f35f0e877"
-  name = "google.golang.org/genproto"
-  packages = [
-    "googleapis/api/annotations",
-    "googleapis/cloud/dialogflow/v2",
-    "googleapis/longrunning",
-    "googleapis/rpc/status",
-    "googleapis/type/latlng",
-    "protobuf/field_mask",
-  ]
-  pruneopts = "UT"
-  revision = "c66870c02cf823ceb633bcd05be3c7cda29976f4"
-
-[[projects]]
-  digest = "1:3dd7996ce6bf52dec6a2f69fa43e7c4cefea1d4dfa3c8ab7a5f8a9f7434e239d"
-  name = "google.golang.org/grpc"
-  packages = [
-    ".",
-    "balancer",
-    "balancer/base",
-    "balancer/roundrobin",
-    "codes",
-    "connectivity",
-    "credentials",
-    "encoding",
-    "encoding/proto",
-    "grpclog",
-    "internal",
-    "internal/backoff",
-    "internal/channelz",
-    "internal/envconfig",
-    "internal/grpcrand",
-    "internal/transport",
-    "keepalive",
-    "metadata",
-    "naming",
-    "peer",
-    "resolver",
-    "resolver/dns",
-    "resolver/passthrough",
-    "stats",
-    "status",
-    "tap",
-  ]
-  pruneopts = "UT"
-  revision = "32fb0ac620c32ba40a4626ddf94d90d12cce3455"
-  version = "v1.14.0"
-
-[[projects]]
-  digest = "1:cf9c32df6fe209f9b5db1aa91c6e4084d3867baa9063803df07c5b80a37f1f90"
+  digest = "1:4a4785749b54b948fd45be3824c6bb1d606578a440657f7cabc79dbbbdc7c476"
   name = "gopkg.in/resty.v1"
   packages = ["."]
   pruneopts = "UT"
-  revision = "97a15579492cd5f35632499f315d7a8df94160a1"
-  version = "v1.8.0"
+  revision = "383acc8a8b687098ee02168c0335a43dfee701f0"
+  version = "v1.9.0"
 
 [[projects]]
   digest = "1:6999e4e34bb73184674e844d6d1e6f48f75a30a9c86ef7663dbc7b2509962812"
@@ -289,14 +188,9 @@
     "github.com/caarlos0/env",
     "github.com/coreos/bbolt",
     "github.com/go-chi/chi",
-    "github.com/go-chi/chi/middleware",
-    "github.com/go-chi/render",
-    "github.com/go-siris/siris/core/errors",
-    "github.com/golang/protobuf/jsonpb",
     "github.com/pkg/errors",
     "github.com/sirupsen/logrus",
     "go.uber.org/fx",
-    "google.golang.org/genproto/googleapis/cloud/dialogflow/v2",
     "gopkg.in/resty.v1",
     "gopkg.in/telegram-bot-api.v4",
   ]

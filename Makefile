@@ -27,7 +27,7 @@ test:
 	$(GO) test ${GODIRS_NOVENDOR}
 
 checkstyle:
-#	gometalinter --vendor ./... --fast --disable=gas --disable=gosec --disable=gotype --deadline 10m
+	gometalinter --vendor ./... --fast --disable=gas --disable=gosec --disable=gotype --deadline 10m
 
 checkstyle-deep:
 	gometalinter --vendor ./... --fast --disable=gas --disable=gosec --deadline 10m

@@ -25,7 +25,7 @@ import (
 type (
 	conf struct {
 		Port      int    `env:"PORT" envDefault:"4200"`
-		RpUuid    string `env:"RP_UUID" envDefault:"a47d5107-edc0-46b9-9258-4e1f8fcfc0ef"`
+		RpUUID    string `env:"RP_UUID" envDefault:"a47d5107-edc0-46b9-9258-4e1f8fcfc0ef"`
 		RpProject string `env:"RP_PROJECT" envDefault:"andrei_varabyeu_personal"`
 		RpHost    string `env:"RP_HOST" envDefault:"https://rp.epam.com"`
 
@@ -43,16 +43,15 @@ type (
 func main() {
 	app := fx.New(
 		fx.Provide(
-			NewConf,
-			NewMux,
-			//NewDFDispatcher,
-			NewSessionRepo,
-			NewRPReporter,
-			NewTelegramBot,
-			NewIntentDispatcher,
-			NewIntentParser,
+			newConf,
+			newMux,
+			newSessionRepo,
+			newRPReporter,
+			newTelegramBot,
+			newIntentDispatcher,
+			newIntentParser,
 		),
-		fx.Invoke(InitLogger, Register),
+		fx.Invoke(initLogger, register),
 	)
 
 	ctx := context.Background()
@@ -63,18 +62,18 @@ func main() {
 
 }
 
-func NewConf() (*conf, error) {
+func newConf() (*conf, error) {
 	cfg := conf{}
 	err := env.Parse(&cfg)
 	return &cfg, err
 }
 
-func InitLogger() {
+func initLogger() {
 	log.SetHandler(cli.New(os.Stdout))
 	log.SetLevel(log.DebugLevel)
 }
 
-func NewMux(lc fx.Lifecycle, cfg *conf) chi.Router {
+func newMux(lc fx.Lifecycle, cfg *conf) chi.Router {
 	mux := chi.NewRouter()
 
 	server := &http.Server{
@@ -96,7 +95,7 @@ func NewMux(lc fx.Lifecycle, cfg *conf) chi.Router {
 	return mux
 }
 
-func NewSessionRepo(lc fx.Lifecycle) (db.SessionRepo, error) {
+func newSessionRepo(lc fx.Lifecycle) (db.SessionRepo, error) {
 	bdb, err := bolt.Open("my.db", 0600, nil)
 	if err != nil {
 		return nil, err
@@ -110,20 +109,13 @@ func NewSessionRepo(lc fx.Lifecycle) (db.SessionRepo, error) {
 	return db.NewBoltSessionRepo(bdb)
 }
 
-//func NewDFDispatcher() *df.Dispatcher {
-//	return df.NewIntentDispatcher()
-//}
-
-func NewIntentDispatcher(nlp *nlp.IntentParser, repo db.SessionRepo, rp *rp.Reporter) *bot.Dispatcher {
+func newIntentDispatcher(nlp *nlp.IntentParser, repo db.SessionRepo, rp *rp.Reporter) *bot.Dispatcher {
 	d := &bot.Dispatcher{
 		NLP: nlp,
 		Handler: bot.IntentNameDispatcher(map[string]bot.Handler{
 			"exit.intent":  intents.NewExitQuizHandler(repo, rp),
 			"start.intent": intents.NewStartQuizHandler(repo, rp),
 		}, intents.NewQuizIntentHandler(repo, rp)),
-		//Fallback: bot.NewHandlerFunc(func(ctx context.Context, rq *bot.Request) (*bot.Response, error) {
-		//	return bot.NewResponse().WithText("What...?"), nil
-		//}),
 		ErrHandler: bot.ErrorHandlerFunc(func(ctx context.Context, err error) *bot.Response {
 			return bot.NewResponse().WithText(fmt.Sprintf("Sorry, error has occured: %s", err))
 		}),
@@ -137,29 +129,18 @@ func NewIntentDispatcher(nlp *nlp.IntentParser, repo db.SessionRepo, rp *rp.Repo
 		})
 	})
 
-	//d.Use(func(next bot.Handler) bot.Handler {
-	//	return bot.NewHandlerFunc(func(ctx context.Context, rq *bot.Request) (*bot.Response, error) {
-	//		if user := botctx.GetUser(ctx); "" != user {
-	//			var s map[string]string
-	//			if err := repo.Load(user, &s); nil != err {
-	//				return next.Handle(botctx.WithSession(ctx, s), rq)
-	//			}
-	//		}
-	//		return next.Handle(ctx, rq)
-	//	})
-	//})
 	return d
 }
 
-func NewIntentParser(cfg *conf) *nlp.IntentParser {
+func newIntentParser(cfg *conf) *nlp.IntentParser {
 	return nlp.NewIntentParser(cfg.NlpURL)
 }
 
-func NewRPReporter(cfg *conf) *rp.Reporter {
-	return rp.NewReporter(gorp.NewClient(cfg.RpHost, cfg.RpProject, cfg.RpUuid))
+func newRPReporter(cfg *conf) *rp.Reporter {
+	return rp.NewReporter(gorp.NewClient(cfg.RpHost, cfg.RpProject, cfg.RpUUID))
 }
 
-func NewTelegramBot(lc fx.Lifecycle, cfg *conf, dispatcher *bot.Dispatcher) *telegram.Bot {
+func newTelegramBot(lc fx.Lifecycle, cfg *conf, dispatcher *bot.Dispatcher) *telegram.Bot {
 	tBot := &telegram.Bot{
 		Token:      cfg.TelegramToken,
 		Dispatcher: dispatcher,
@@ -172,5 +153,5 @@ func NewTelegramBot(lc fx.Lifecycle, cfg *conf, dispatcher *bot.Dispatcher) *tel
 	return tBot
 }
 
-func Register(tb *telegram.Bot) {
+func register(tb *telegram.Bot) {
 }

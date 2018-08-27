@@ -5,14 +5,15 @@ import (
 	"strconv"
 )
 
-const opebTdbURL = "https://opentdb.com"
+const openTdbURL = "https://opentdb.com"
 
 type (
-	Response struct {
+	response struct {
 		Code    int         `json:"response_code,omitempty"`
 		Results []*Question `json:"results,omitempty"`
 	}
 
+	//Question represents one question in openTDB
 	Question struct {
 		Category         string   `json:"category,omitempty"`
 		Type             string   `json:"type,omitempty"`
@@ -22,19 +23,22 @@ type (
 		IncorrectAnswers []string `json:"incorrect_answers,omitempty"`
 	}
 
+	//Client is the OpenTDB client
 	Client struct {
 		http *resty.Client
 	}
 )
 
+//NewClient creates new OpenTDB client
 func NewClient() *Client {
 	return &Client{
-		http: resty.New().SetHostURL(opebTdbURL),
+		http: resty.New().SetHostURL(openTdbURL),
 	}
 }
 
+//GetQuestions retrieves given amount of questions
 func (c Client) GetQuestions(count int) ([]*Question, error) {
-	var q Response
+	var q response
 	_, err := c.http.
 		NewRequest().
 		SetQueryParam("amount", strconv.Itoa(count)).

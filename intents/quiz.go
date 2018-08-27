@@ -2,7 +2,6 @@ package intents
 
 import (
 	"context"
-	"fmt"
 	"github.com/apex/log"
 	"github.com/pkg/errors"
 	"gitlab.com/avarabyeu/rpquiz/bot/db"
@@ -10,11 +9,11 @@ import (
 	"gitlab.com/avarabyeu/rpquiz/bot/engine/ctx"
 	"gitlab.com/avarabyeu/rpquiz/opentdb"
 	"gitlab.com/avarabyeu/rpquiz/rp"
-	"google.golang.org/genproto/googleapis/cloud/dialogflow/v2"
 	"net/url"
 	"strings"
 )
 
+//NewStartQuizHandler creates new start intent handler - greeting and first question
 func NewStartQuizHandler(repo db.SessionRepo, rp *rp.Reporter) bot.Handler {
 	return bot.NewHandlerFunc(func(ctx context.Context, rq *bot.Request) (*bot.Response, error) {
 		sessionID := botctx.GetUser(ctx)
@@ -31,12 +30,8 @@ func NewStartQuizHandler(repo db.SessionRepo, rp *rp.Reporter) bot.Handler {
 			return nil, err
 		}
 
-		question, err := url.PathUnescape(questions[0].Question)
-		if nil != err {
-			return nil, err
-		}
-
-		testID, err := rp.StartTest(rpID, question)
+		q := questions[0]
+		testID, err := rp.StartTest(rpID, q.Question)
 		if nil != err {
 			return nil, err
 		}
@@ -51,10 +46,12 @@ func NewStartQuizHandler(repo db.SessionRepo, rp *rp.Reporter) bot.Handler {
 			return nil, err
 		}
 
-		return bot.NewResponse().WithText(fmt.Sprintf("We are starting a quiz! I'll be asked %d questions.\n%s", count, question)), nil
+		q.Question = "We are starting new quiz!\n" + q.Question
+		return askQuestion(q), nil
 	})
 }
 
+//NewExitQuizHandler creates new intent handler that processes quit from quiz
 func NewExitQuizHandler(repo db.SessionRepo, rp *rp.Reporter) bot.Handler {
 	return bot.NewHandlerFunc(func(ctx context.Context, rq *bot.Request) (*bot.Response, error) {
 		sessionID := botctx.GetUser(ctx)
@@ -62,11 +59,6 @@ func NewExitQuizHandler(repo db.SessionRepo, rp *rp.Reporter) bot.Handler {
 
 			session, err := loadSession(repo, sessionID)
 			if err != nil {
-				return nil, err
-			}
-
-			//handle quit
-			if err := rp.FinishLaunch(sessionID); nil != err {
 				return nil, err
 			}
 
@@ -84,51 +76,40 @@ func NewExitQuizHandler(repo db.SessionRepo, rp *rp.Reporter) bot.Handler {
 	})
 }
 
+//QuizIntentHandler handles answer to a question
 type QuizIntentHandler struct {
 	repo db.SessionRepo
 	rp   *rp.Reporter
 }
 
+//NewQuizIntentHandler creates new instance of a handler
 func NewQuizIntentHandler(repo db.SessionRepo, rp *rp.Reporter) *QuizIntentHandler {
 	return &QuizIntentHandler{repo: repo, rp: rp}
 }
 
+//Handle handles answer to a question
 func (h *QuizIntentHandler) Handle(ctx context.Context, rq *bot.Request) (*bot.Response, error) {
 	sessionID := botctx.GetUser(ctx)
 
 	session, err := loadSession(h.repo, sessionID)
-	if nil != err {
-		return nil, err
+	if nil != err || nil == session {
+		return nil, errors.Errorf("session for user %s not found", sessionID)
 	}
-	if nil == session {
-		return nil, errors.New("Session is nil!")
-	}
+
 	if currQuestion := len(session.Results); currQuestion >= 0 {
 
-		answer := rq.Raw
-		if nil == session.Results {
-			session.Results = map[int]bool{}
-		}
-		correctAnswer, err := url.PathUnescape(session.Questions[currQuestion].CorrectAnswer)
-		if nil != err {
-			return nil, err
+		//handle answer to the previous question
+		if err := h.handleAnswer(rq, session, currQuestion); nil != err {
+			return nil, errors.WithStack(err)
 		}
 
-		passed := strings.EqualFold(answer, correctAnswer)
-		session.Results[currQuestion] = passed
-		if err := h.rp.FinishTest(session.TestID, passed); nil != err {
-			return nil, err
-		}
-
+		// not a last question. Ask next one
 		if currQuestion < len(session.Questions)-1 {
 			log.Info("Handling question")
 
-			newQuestion, err := url.PathUnescape(session.Questions[currQuestion+1].Question)
-			if nil != err {
-				return nil, err
-			}
+			newQuestion := askQuestion(session.Questions[currQuestion+1])
 
-			testID, err := h.rp.StartTest(session.LaunchID, newQuestion)
+			testID, err := h.rp.StartTest(session.LaunchID, newQuestion.Text)
 			if nil != err {
 				return nil, err
 			}
@@ -138,33 +119,59 @@ func (h *QuizIntentHandler) Handle(ctx context.Context, rq *bot.Request) (*bot.R
 				return nil, err
 			}
 
-			return bot.NewResponse().WithText(newQuestion), nil
+			return newQuestion, nil
 			// handle question
-		} else {
-			log.Info("Handling last question")
-
-			if err := h.repo.Delete(sessionID); nil != err {
-				return nil, err
-			}
-			if err := h.rp.FinishLaunch(session.LaunchID); nil != err {
-				return nil, err
-			}
-			return bot.NewResponse().WithText("Thank you!. You passed a quiz!"), nil
-
-			// handle last question. close session
 		}
+
+		// handle last question. close session
+		log.Info("Handling last question")
+		if err := h.repo.Delete(sessionID); nil != err {
+			return nil, err
+		}
+		if err := h.rp.FinishLaunch(session.LaunchID); nil != err {
+			return nil, err
+		}
+		return bot.NewResponse().WithText("Thank you! You passed a quiz!"), nil
+
 	}
 
 	return bot.NewResponse().WithText("hm.."), nil
 }
 
-func (h *QuizIntentHandler) findContext(rq *dialogflow.WebhookRequest) bool {
-	for _, ctx := range rq.GetQueryResult().GetOutputContexts() {
-		if strings.HasSuffix(ctx.Name, "/quiz_dialog_context") {
-			return true
-		}
+func (h *QuizIntentHandler) handleAnswer(rq *bot.Request, session *QuizSession, currQuestion int) error {
+	answer := rq.Raw
+	if nil == session.Results {
+		session.Results = map[int]bool{}
 	}
-	return false
+	correctAnswer, err := url.PathUnescape(session.Questions[currQuestion].CorrectAnswer)
+	if nil != err {
+		return err
+	}
+
+	passed := strings.EqualFold(answer, correctAnswer)
+	session.Results[currQuestion] = passed
+	if err := h.rp.FinishTest(session.TestID, passed); nil != err {
+		return err
+	}
+	return nil
+
+}
+
+func askQuestion(q *opentdb.Question) *bot.Response {
+	qText, _ := url.PathUnescape(q.Question)
+	rs := bot.NewResponse().WithText(qText)
+	if len(q.IncorrectAnswers) > 0 {
+		btns := make([]*bot.Button, len(q.IncorrectAnswers))
+		for i, btn := range q.IncorrectAnswers {
+			btnText, _ := url.PathUnescape(btn)
+			btns[i] = &bot.Button{
+				Data: btnText,
+				Text: btnText,
+			}
+		}
+		rs.WithButtons(btns...)
+	}
+	return rs
 }
 
 func loadSession(repo db.SessionRepo, id string) (*QuizSession, error) {

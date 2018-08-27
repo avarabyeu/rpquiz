@@ -6,21 +6,19 @@ import (
 	"time"
 )
 
+//NewReporter creates new instance of Reporter
 func NewReporter(client *gorp.Client) *Reporter {
 	return &Reporter{
 		rp: client,
 	}
 }
 
+//Reporter simple wrapper over RP client
 type Reporter struct {
 	rp *gorp.Client
 }
 
-type RpEvent struct {
-	launchID string
-	rq       interface{}
-}
-
+//StartTest starts new test in RP
 func (r *Reporter) StartTest(launchID, question string) (string, error) {
 	log.Debug("Reporting new question to RP")
 
@@ -37,6 +35,8 @@ func (r *Reporter) StartTest(launchID, question string) (string, error) {
 	return rs.ID, nil
 
 }
+
+//FinishTest finishes test in RP
 func (r *Reporter) FinishTest(testID string, pass bool) error {
 	log.Debug("Reporting new question to RP")
 
@@ -55,6 +55,7 @@ func (r *Reporter) FinishTest(testID string, pass bool) error {
 	return err
 }
 
+//StartLaunch starts launch in report portal
 func (r *Reporter) StartLaunch() (string, error) {
 	log.Info("Starting launch in RP")
 	rs, err := r.rp.StartLaunch(&gorp.StartLaunchRQ{
@@ -73,6 +74,7 @@ func (r *Reporter) StartLaunch() (string, error) {
 	return rs.ID, nil
 }
 
+//FinishLaunch finishes launch in ReportPortal
 func (r *Reporter) FinishLaunch(rpID string) error {
 	_, err := r.rp.FinishLaunch(rpID, &gorp.FinishExecutionRQ{
 		EndTime: gorp.Timestamp{

@@ -2,7 +2,6 @@ package bot
 
 import (
 	"context"
-	"fmt"
 	"github.com/apex/log"
 	"github.com/pkg/errors"
 	"gitlab.com/avarabyeu/rpquiz/bot/nlp"
@@ -19,6 +18,7 @@ type (
 		Handle(ctx context.Context, err error) *Response
 	}
 
+	//Middleware represents intent handler interceptor/middleware
 	Middleware func(Handler) Handler
 
 	//Dispatcher dispatches intent to appropriate handler
@@ -44,7 +44,14 @@ type (
 
 	//Response is platform-agnostic answer representation
 	Response struct {
+		Text    string
+		Buttons []*Button
+	}
+
+	//Button is platform-agnostic button representation
+	Button struct {
 		Text string
+		Data string
 	}
 
 	// The HandlerFunc type is an adapter to allow the use of
@@ -112,8 +119,6 @@ func (d *Dispatcher) Dispatch(ctx context.Context, msg string) (rs *Response) {
 		Raw:        msg,
 		Confidence: intent.Conf,
 	}
-	fmt.Printf("Conf: %d\n", rq.Confidence)
-	fmt.Printf("Int: %s\n", rq.Intent)
 	return d.DispatchRQ(ctx, rq)
 }
 
@@ -154,5 +159,11 @@ func NewResponse() *Response {
 //WithText adds simple text to the response and returns itself
 func (rs *Response) WithText(t string) *Response {
 	rs.Text = t
+	return rs
+}
+
+//WithButtons adds buttons
+func (rs *Response) WithButtons(btns ...*Button) *Response {
+	rs.Buttons = btns
 	return rs
 }
