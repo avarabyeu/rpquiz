@@ -4,55 +4,158 @@ import (
 	"context"
 	"fmt"
 	"github.com/apex/log"
-	"github.com/avarabyeu/gorp/gorp"
-	"github.com/avarabyeu/rpquiz/db"
-	"github.com/avarabyeu/rpquiz/df"
+	"github.com/pkg/errors"
+	"gitlab.com/avarabyeu/rpquiz/bot/db"
+	"gitlab.com/avarabyeu/rpquiz/bot/engine"
+	"gitlab.com/avarabyeu/rpquiz/bot/engine/ctx"
+	"gitlab.com/avarabyeu/rpquiz/opentdb"
+	"gitlab.com/avarabyeu/rpquiz/rp"
 	"google.golang.org/genproto/googleapis/cloud/dialogflow/v2"
+	"net/url"
 	"strings"
-	"time"
 )
+
+func NewStartQuizHandler(repo db.SessionRepo, rp *rp.Reporter) bot.Handler {
+	return bot.NewHandlerFunc(func(ctx context.Context, rq *bot.Request) (*bot.Response, error) {
+		sessionID := botctx.GetUser(ctx)
+
+		log.Infof("Starting new quiz for %s", sessionID)
+		//handle start, first question
+		rpID, err := rp.StartLaunch()
+		if err != nil {
+			return nil, err
+		}
+		count := 5
+		questions, err := opentdb.NewClient().GetQuestions(count)
+		if err != nil {
+			return nil, err
+		}
+
+		question, err := url.PathUnescape(questions[0].Question)
+		if nil != err {
+			return nil, err
+		}
+
+		testID, err := rp.StartTest(rpID, question)
+		if nil != err {
+			return nil, err
+		}
+
+		err = repo.Save(sessionID, &QuizSession{
+			Questions: questions,
+			Results:   map[int]bool{},
+			LaunchID:  rpID,
+			TestID:    testID,
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		return bot.NewResponse().WithText(fmt.Sprintf("We are starting a quiz! I'll be asked %d questions.\n%s", count, question)), nil
+	})
+}
+
+func NewExitQuizHandler(repo db.SessionRepo, rp *rp.Reporter) bot.Handler {
+	return bot.NewHandlerFunc(func(ctx context.Context, rq *bot.Request) (*bot.Response, error) {
+		sessionID := botctx.GetUser(ctx)
+		if rq.Confidence >= 0.8 && "quit" == rq.Intent {
+
+			session, err := loadSession(repo, sessionID)
+			if err != nil {
+				return nil, err
+			}
+
+			//handle quit
+			if err := rp.FinishLaunch(sessionID); nil != err {
+				return nil, err
+			}
+
+			if err := repo.Delete(sessionID); err != nil {
+				return nil, err
+			}
+
+			if err := rp.FinishLaunch(session.LaunchID); nil != err {
+				return nil, err
+			}
+
+		}
+		return bot.NewResponse().WithText("Thanks for quiizing!"), nil
+
+	})
+}
 
 type QuizIntentHandler struct {
 	repo db.SessionRepo
-	rp   *gorp.Client
+	rp   *rp.Reporter
 }
 
-func NewQuizIntentHandler(repo db.SessionRepo, rp *gorp.Client) *QuizIntentHandler {
+func NewQuizIntentHandler(repo db.SessionRepo, rp *rp.Reporter) *QuizIntentHandler {
 	return &QuizIntentHandler{repo: repo, rp: rp}
 }
 
-func (h *QuizIntentHandler) Handle(ctx context.Context, rq *dialogflow.WebhookRequest) (*dialogflow.WebhookResponse, error) {
-	//fmt.Println(rq.GetSession())
-	defer func() {
-		if r := recover(); r != nil {
-			fmt.Println("Recovered in f", r)
-		}
-	}()
-	rpSession, err := h.repo.Find(rq.GetSession())
+func (h *QuizIntentHandler) Handle(ctx context.Context, rq *bot.Request) (*bot.Response, error) {
+	sessionID := botctx.GetUser(ctx)
+
+	session, err := loadSession(h.repo, sessionID)
 	if nil != err {
-		log.WithError(err).Error("Cannot find session in DB")
+		return nil, err
 	}
+	if nil == session {
+		return nil, errors.New("Session is nil!")
+	}
+	if currQuestion := len(session.Results); currQuestion >= 0 {
 
-	//Quiz is just started. Create Launch in RP
-	if rq.QueryResult.AllRequiredParamsPresent == false && h.findContext(rq) && nil == rpSession {
-		if rpSession, err = h.handleLaunchStart(ctx, rq); nil != err {
+		answer := rq.Raw
+		if nil == session.Results {
+			session.Results = map[int]bool{}
+		}
+		correctAnswer, err := url.PathUnescape(session.Questions[currQuestion].CorrectAnswer)
+		if nil != err {
 			return nil, err
 		}
 
-		//All quiz questions are answered. Finishing launch in RP
-	} else if rq.QueryResult.AllRequiredParamsPresent {
-		if err := h.handleLaunchFinish(ctx, rq, rpSession); nil != err {
+		passed := strings.EqualFold(answer, correctAnswer)
+		session.Results[currQuestion] = passed
+		if err := h.rp.FinishTest(session.TestID, passed); nil != err {
 			return nil, err
 		}
 
-	} else {
-		//report result
-		h.reportResult(ctx, rq, rpSession)
+		if currQuestion < len(session.Questions)-1 {
+			log.Info("Handling question")
+
+			newQuestion, err := url.PathUnescape(session.Questions[currQuestion+1].Question)
+			if nil != err {
+				return nil, err
+			}
+
+			testID, err := h.rp.StartTest(session.LaunchID, newQuestion)
+			if nil != err {
+				return nil, err
+			}
+			session.TestID = testID
+
+			if err := h.repo.Save(sessionID, session); nil != err {
+				return nil, err
+			}
+
+			return bot.NewResponse().WithText(newQuestion), nil
+			// handle question
+		} else {
+			log.Info("Handling last question")
+
+			if err := h.repo.Delete(sessionID); nil != err {
+				return nil, err
+			}
+			if err := h.rp.FinishLaunch(session.LaunchID); nil != err {
+				return nil, err
+			}
+			return bot.NewResponse().WithText("Thank you!. You passed a quiz!"), nil
+
+			// handle last question. close session
+		}
 	}
 
-	rs := df.NewBuilder().Defaults(rq.QueryResult).Build()
-	rs.FulfillmentText = rs.FulfillmentText + "PROMPT!"
-	return rs, nil
+	return bot.NewResponse().WithText("hm.."), nil
 }
 
 func (h *QuizIntentHandler) findContext(rq *dialogflow.WebhookRequest) bool {
@@ -64,85 +167,11 @@ func (h *QuizIntentHandler) findContext(rq *dialogflow.WebhookRequest) bool {
 	return false
 }
 
-func (h *QuizIntentHandler) hasDialogParamsCtx(rq *dialogflow.WebhookRequest) bool {
-	for _, ctx := range rq.GetQueryResult().GetOutputContexts() {
-		if strings.Contains(ctx.Name, "/quiz_dialog_params_") {
-			return true
-		}
-	}
-	return false
-}
-
-func (h *QuizIntentHandler) handleLaunchStart(ctx context.Context, rq *dialogflow.WebhookRequest) (*db.RPSession, error) {
-	log.Info("Starting launch in RP")
-	rs, err := h.rp.StartLaunch(&gorp.StartLaunchRQ{
-		StartRQ: gorp.StartRQ{
-			Name:        "bot",
-			Description: "test desc",
-			StartTime: gorp.Timestamp{
-				Time: time.Now(),
-			},
-		},
-	})
+func loadSession(repo db.SessionRepo, id string) (*QuizSession, error) {
+	var session QuizSession
+	err := repo.Load(id, &session)
 	if err != nil {
 		return nil, err
 	}
-
-	s := &db.RPSession{
-		DfID: rq.Session,
-		RpID: rs.ID,
-	}
-	return s, h.repo.Save(s)
-}
-
-func (h *QuizIntentHandler) reportResult(ctx context.Context, rq *dialogflow.WebhookRequest, session *db.RPSession) error {
-	rs, err := h.rp.StartTest(&gorp.StartTestRQ{
-		LaunchID: session.RpID,
-		Type:     "TEST",
-		StartRQ: gorp.StartRQ{
-			StartTime: gorp.Timestamp{Time: time.Now()},
-			Name:      rq.QueryResult.GetQueryText(),
-		},
-	})
-	if err != nil {
-		return err
-	}
-
-	h.rp.FinishTest(rs.ID, &gorp.FinishTestRQ{
-		Retry: false,
-		FinishExecutionRQ: gorp.FinishExecutionRQ{
-			Status:  "PASSED",
-			EndTime: gorp.Timestamp{Time: time.Now()},
-		},
-	})
-	return nil
-}
-
-func (h *QuizIntentHandler) handleLaunchFinish(ctx context.Context, rq *dialogflow.WebhookRequest, session *db.RPSession) error {
-	_, err := h.rp.FinishLaunch(session.RpID, &gorp.FinishExecutionRQ{
-		EndTime: gorp.Timestamp{
-			Time: time.Now(),
-		},
-		Status: "PASSED",
-	})
-	if nil != err {
-		return err
-	}
-	return h.repo.Delete(rq.GetSession())
-}
-
-func Q1Func() df.HandlerFunc {
-	return func(ctx context.Context, rq *dialogflow.WebhookRequest) (*dialogflow.WebhookResponse, error) {
-		build := df.NewBuilder().Defaults(rq.QueryResult).Build()
-
-		fmt.Println(rq.GetQueryResult().GetOutputContexts())
-
-		build.FollowupEventInput = &dialogflow.EventInput{
-			Name: "q1.q1-custom",
-			//Parameters: &structpb.Struct{},
-		}
-		fmt.Println(build)
-
-		return build, nil
-	}
+	return &session, nil
 }

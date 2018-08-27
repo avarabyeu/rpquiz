@@ -6,14 +6,18 @@ import (
 	"github.com/apex/log"
 	"github.com/apex/log/handlers/cli"
 	"github.com/avarabyeu/gorp/gorp"
-	"github.com/avarabyeu/rpquiz/db"
-	"github.com/avarabyeu/rpquiz/df"
-	"github.com/avarabyeu/rpquiz/intents"
 	"github.com/caarlos0/env"
 	"github.com/coreos/bbolt"
 	"github.com/go-chi/chi"
-	"github.com/go-chi/chi/middleware"
+	"gitlab.com/avarabyeu/rpquiz/bot/db"
+	"gitlab.com/avarabyeu/rpquiz/bot/engine"
+	"gitlab.com/avarabyeu/rpquiz/bot/engine/ctx"
+	"gitlab.com/avarabyeu/rpquiz/bot/nlp"
+	"gitlab.com/avarabyeu/rpquiz/bot/telegram"
+	"gitlab.com/avarabyeu/rpquiz/intents"
+	"gitlab.com/avarabyeu/rpquiz/rp"
 	"go.uber.org/fx"
+	"gopkg.in/telegram-bot-api.v4"
 	"net/http"
 	"os"
 )
@@ -24,6 +28,15 @@ type (
 		RpUuid    string `env:"RP_UUID" envDefault:"a47d5107-edc0-46b9-9258-4e1f8fcfc0ef"`
 		RpProject string `env:"RP_PROJECT" envDefault:"andrei_varabyeu_personal"`
 		RpHost    string `env:"RP_HOST" envDefault:"https://rp.epam.com"`
+
+		//DB settings
+		DbFile string `env:"DB_FILE" envDefault:"qabot.db"`
+
+		//NLP settings
+		NlpURL string `env:"NLP_URL" envDefault:"http://localhost:5000"`
+
+		//Telegram
+		TelegramToken string `env:"TG_TOKEN" envDefault:"597153786:AAGw8YF-LJh9V0aP9Cq-yWheMM9dPhiVjAU"`
 	}
 )
 
@@ -32,9 +45,12 @@ func main() {
 		fx.Provide(
 			NewConf,
 			NewMux,
-			NewDFDispatcher,
+			//NewDFDispatcher,
 			NewSessionRepo,
-			NewRPClient,
+			NewRPReporter,
+			NewTelegramBot,
+			NewIntentDispatcher,
+			NewIntentParser,
 		),
 		fx.Invoke(InitLogger, Register),
 	)
@@ -94,22 +110,67 @@ func NewSessionRepo(lc fx.Lifecycle) (db.SessionRepo, error) {
 	return db.NewBoltSessionRepo(bdb)
 }
 
-func NewDFDispatcher() *df.Dispatcher {
-	return df.NewIntentDispatcher()
+//func NewDFDispatcher() *df.Dispatcher {
+//	return df.NewIntentDispatcher()
+//}
+
+func NewIntentDispatcher(nlp *nlp.IntentParser, repo db.SessionRepo, rp *rp.Reporter) *bot.Dispatcher {
+	d := &bot.Dispatcher{
+		NLP: nlp,
+		Handler: bot.IntentNameDispatcher(map[string]bot.Handler{
+			"exit.intent":  intents.NewExitQuizHandler(repo, rp),
+			"start.intent": intents.NewStartQuizHandler(repo, rp),
+		}, intents.NewQuizIntentHandler(repo, rp)),
+		//Fallback: bot.NewHandlerFunc(func(ctx context.Context, rq *bot.Request) (*bot.Response, error) {
+		//	return bot.NewResponse().WithText("What...?"), nil
+		//}),
+		ErrHandler: bot.ErrorHandlerFunc(func(ctx context.Context, err error) *bot.Response {
+			return bot.NewResponse().WithText(fmt.Sprintf("Sorry, error has occured: %s", err))
+		}),
+	}
+	d.Use(func(next bot.Handler) bot.Handler {
+		return bot.NewHandlerFunc(func(ctx context.Context, rq *bot.Request) (*bot.Response, error) {
+			if upd, ok := botctx.GetOriginalMessage(ctx).(tgbotapi.Update); ok {
+				return next.Handle(botctx.WithUser(ctx, upd.Message.From.UserName), rq)
+			}
+			return next.Handle(ctx, rq)
+		})
+	})
+
+	//d.Use(func(next bot.Handler) bot.Handler {
+	//	return bot.NewHandlerFunc(func(ctx context.Context, rq *bot.Request) (*bot.Response, error) {
+	//		if user := botctx.GetUser(ctx); "" != user {
+	//			var s map[string]string
+	//			if err := repo.Load(user, &s); nil != err {
+	//				return next.Handle(botctx.WithSession(ctx, s), rq)
+	//			}
+	//		}
+	//		return next.Handle(ctx, rq)
+	//	})
+	//})
+	return d
 }
 
-func NewRPClient(cfg *conf) *gorp.Client {
-	fmt.Println(cfg.RpUuid)
-	return gorp.NewClient(cfg.RpHost, cfg.RpProject, cfg.RpUuid)
+func NewIntentParser(cfg *conf) *nlp.IntentParser {
+	return nlp.NewIntentParser(cfg.NlpURL)
 }
 
-func Register(mux chi.Router, dispatcher *df.Dispatcher, repo db.SessionRepo, rp *gorp.Client) {
-	dispatcher.SetHandler(df.IntentNameDispatcher(map[string]df.IntentHandler{
-		"quiz": intents.NewQuizIntentHandler(repo, rp),
-		"q1":   intents.Q1Func(),
-	}))
+func NewRPReporter(cfg *conf) *rp.Reporter {
+	return rp.NewReporter(gorp.NewClient(cfg.RpHost, cfg.RpProject, cfg.RpUuid))
+}
 
-	mux.Use(middleware.Logger)
-	mux.Use(middleware.Recoverer)
-	mux.Post("/", dispatcher.HTTPHandler())
+func NewTelegramBot(lc fx.Lifecycle, cfg *conf, dispatcher *bot.Dispatcher) *telegram.Bot {
+	tBot := &telegram.Bot{
+		Token:      cfg.TelegramToken,
+		Dispatcher: dispatcher,
+	}
+	lc.Append(fx.Hook{
+		OnStart: func(ctc context.Context) error {
+			return tBot.Start()
+		},
+	})
+	return tBot
+}
+
+func Register(tb *telegram.Bot) {
 }

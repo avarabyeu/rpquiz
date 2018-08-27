@@ -1,0 +1,15 @@
+# Created by .ignore support plugin (hsz.mobi)
+### JetBrains template
+.idea/
+*.iml
+
+### Golang
+vendor/
+
+
+### NLP
+intent_cache/
+
+### Other
+*.db
+*.pid

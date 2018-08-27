@@ -8,7 +8,7 @@ BINARY_DIR=bin
 
 GODIRS_NOVENDOR = $(shell go list ./... | grep -v /vendor/)
 GOFILES_NOVENDOR = $(shell find . -type f -name '*.go' -not -path "./vendor/*")
-PACKAGE_BUILD_INFO=github.com/avarabyeu/rpquiz
+PACKAGE_BUILD_INFO=gitlab.com/avarabyeu/rpquiz
 
 BUILD_INFO_LDFLAGS=-ldflags "-extldflags '"-static"' -X ${PACKAGE_BUILD_INFO}/util.buildDate=${BUILD_DATE} -X ${PACKAGE_BUILD_INFO}/util.version=${version}"
 
@@ -23,6 +23,7 @@ vendor:
 	dep ensure
 
 test:
+	ls -la
 	$(GO) test ${GODIRS_NOVENDOR}
 
 checkstyle:
@@ -34,7 +35,7 @@ checkstyle-deep:
 fmt:
 	gofmt -l -w -s ${GOFILES_NOVENDOR}
 
-build: checkstyle test
+build: checkstyle
 	CGO_ENABLED=0 GOOS=linux $(GO) build ${BUILD_INFO_LDFLAGS} -o ${BINARY_DIR}/rpquiz ./
 
 

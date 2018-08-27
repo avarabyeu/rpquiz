@@ -1,9 +1,15 @@
-version: '3'
+version: '2'
 
 services:
   rpquiz:
+    image: qabotdev
+    ports:
+    - 9001:9001
     build:
-      context: .
-      args:
-      - version=1
-    restart: on-failure
+      dockerfile: Dockerfile
+      context: ./
+    volumes:
+    - ./:/go/src/gitlab.com/avarabyeu/rpquiz
+#    environment:
+#      INFO_ENABLED: "true"
+#      AUTH_ENABLED: "true"
