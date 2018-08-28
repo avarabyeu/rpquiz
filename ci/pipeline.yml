@@ -2,23 +2,25 @@ resources:
 - name: rpquiz-git
   type: git
   source:
-    uri: https://gitlab.com/avarabyeu/rpquiz.git
+    uri: git@gitlab.com:avarabyeu/rpquiz.git
     branch: master
-
+    private_key: ((repo_key))
 - name: rpquiz-docker-image
   type: docker-image
   source:
     repository: registry.gitlab.com/avarabyeu/rpquiz
-
+    username: ((docker_login))
+    password: ((docker_pass))
 
 jobs:
 - name: build
   public: true
   serial: true
   plan:
-  - get: service-index
+  - get: rpquiz-git
     trigger: true
-  - put: service-ui-docker-image
-  params:
-    build: service-ui/
-    dockerfile: DockerfileProd
+  - put: rpquiz-docker-image
+    params:
+      params: {save: true}
+      build: rpquiz-git
+      dockerfile: rpquiz-git/DockerfileProd

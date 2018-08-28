@@ -2,7 +2,7 @@
 FROM golang:1.11-alpine as go-build
 
 RUN apk add --update --no-cache \
-    supervisor curl cmake fann-dev wget unzip python3-dev python3 swig \
+    curl cmake wget unzip \
     alpine-sdk \
     ca-certificates \
     tzdata
@@ -19,7 +19,7 @@ WORKDIR $WORKDIR
 COPY Gopkg.toml Gopkg.lock Makefile ./
 RUN dep ensure --vendor-only
 
-ADD ./ ./
+ADD ./bot/ ./
 RUN make build
 
 FROM python:3.6-alpine
