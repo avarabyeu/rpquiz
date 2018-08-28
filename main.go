@@ -9,15 +9,17 @@ import (
 	"github.com/caarlos0/env"
 	"github.com/coreos/bbolt"
 	"github.com/go-chi/chi"
+	"github.com/pkg/errors"
 	"gitlab.com/avarabyeu/rpquiz/bot/db"
 	"gitlab.com/avarabyeu/rpquiz/bot/engine"
+	"gitlab.com/avarabyeu/rpquiz/bot/intents"
 	"gitlab.com/avarabyeu/rpquiz/bot/nlp"
+	"gitlab.com/avarabyeu/rpquiz/bot/rp"
 	"gitlab.com/avarabyeu/rpquiz/bot/telegram"
-	"gitlab.com/avarabyeu/rpquiz/intents"
-	"gitlab.com/avarabyeu/rpquiz/rp"
 	"go.uber.org/fx"
 	"net/http"
 	"os"
+	"strings"
 )
 
 type (
@@ -115,6 +117,7 @@ func newIntentDispatcher(nlp *nlp.IntentParser, repo db.SessionRepo, rp *rp.Repo
 			"start.intent": intents.NewStartQuizHandler(repo, rp),
 		}, intents.NewQuizIntentHandler(repo, rp)),
 		ErrHandler: bot.ErrorHandlerFunc(func(ctx context.Context, err error) *bot.Response {
+			logErr(err)
 			return bot.NewResponse().WithText(fmt.Sprintf("Sorry, error has occured: %s", err))
 		}),
 	}
@@ -152,4 +155,23 @@ func newTelegramBot(lc fx.Lifecycle, cfg *conf, dispatcher *bot.Dispatcher) *tel
 }
 
 func register(tb *telegram.Bot) {
+}
+
+func logErr(err error) {
+	if err != nil {
+		if err, ok := err.(stackTracer); ok {
+			stackTrace := make([]string, len(err.StackTrace()))
+			for i, f := range err.StackTrace() {
+				stackTrace[i] = fmt.Sprintf("%+v", f)
+			}
+			fmt.Println(strings.Join(stackTrace, "\n"))
+		} else {
+			log.Errorf("%s", err)
+		}
+	}
+}
+
+// stackTracer interface.
+type stackTracer interface {
+	StackTrace() errors.StackTrace
 }

@@ -2,7 +2,6 @@ package bot
 
 import (
 	"context"
-	"github.com/apex/log"
 	"github.com/pkg/errors"
 )
 
@@ -27,12 +26,6 @@ func IntentNameDispatcher(handlers map[string]Handler, fallback Handler) Handler
 			handler = fallback
 		}
 
-		rs, err := handler.Handle(ctx, rq)
-		if nil != err {
-			// we do not return HTTP errors. Instead, some special error handler is used to notify user
-			// that something goes wrong. Such approach should simplify debugging
-			log.WithError(err).Errorf("Error on intent handling: %s", err.Error())
-		}
-		return rs, err
+		return handler.Handle(ctx, rq)
 	})
 }

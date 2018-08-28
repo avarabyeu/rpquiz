@@ -7,8 +7,8 @@ import (
 	"gitlab.com/avarabyeu/rpquiz/bot/db"
 	"gitlab.com/avarabyeu/rpquiz/bot/engine"
 	"gitlab.com/avarabyeu/rpquiz/bot/engine/ctx"
-	"gitlab.com/avarabyeu/rpquiz/opentdb"
-	"gitlab.com/avarabyeu/rpquiz/rp"
+	"gitlab.com/avarabyeu/rpquiz/bot/opentdb"
+	"gitlab.com/avarabyeu/rpquiz/bot/rp"
 	"net/url"
 	"strings"
 )

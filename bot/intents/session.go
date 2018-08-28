@@ -1,6 +1,6 @@
 package intents
 
-import "gitlab.com/avarabyeu/rpquiz/opentdb"
+import "gitlab.com/avarabyeu/rpquiz/bot/opentdb"
 
 //QuizSession DB model
 type QuizSession struct {
