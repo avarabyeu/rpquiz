@@ -1,5 +1,5 @@
 ## This one is based on Debian
-FROM golang:1.10-alpine
+FROM golang:1.11-alpine
 
 RUN apk add --update --no-cache \
     supervisor curl cmake fann-dev wget unzip python3-dev python3 swig \

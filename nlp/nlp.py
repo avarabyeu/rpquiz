@@ -4,19 +4,13 @@ from os.path import basename
 from os.path import join
 from padatious import IntentContainer
 
-app = Flask(__name__)
+
+def create_application():
+    application = Flask(__name__)
+    return application
 
 
-@app.route('/', methods=['POST'])
-def index():
-    json.dumps(request.json)
-    content = request.json
-    match = container.calc_intent(content['q'])
-
-    return jsonify(match.__dict__)
-
-
-if __name__ == '__main__':
+def create_container():
     container = IntentContainer('intent_cache')
     dir = os.getenv('VOCAB_DIR', '/qabot/vocab/en-us/')
     for file in os.listdir(dir):
@@ -27,5 +21,21 @@ if __name__ == '__main__':
             container.load_entity(basename(file), join(dir, file))
 
     container.train()
+    return container
 
-    app.run(host='0.0.0.0', port=5000)
+
+application = create_application()
+container = create_container()
+
+
+@application.route('/', methods=['POST'])
+def index():
+    json.dumps(request.json)
+    content = request.json
+    match = container.calc_intent(content['q'])
+
+    return jsonify(match.__dict__)
+
+
+if __name__ == '__main__':
+    application.run(host='0.0.0.0', port=5000)

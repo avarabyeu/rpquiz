@@ -1,7 +1,7 @@
 package nlp
 
 import (
-	log "github.com/sirupsen/logrus"
+	"github.com/apex/log"
 	"gopkg.in/resty.v1"
 	"net/http"
 )

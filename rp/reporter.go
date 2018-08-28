@@ -57,7 +57,7 @@ func (r *Reporter) FinishTest(testID string, pass bool) error {
 
 //StartLaunch starts launch in report portal
 func (r *Reporter) StartLaunch() (string, error) {
-	log.Info("Starting launch in RP")
+	log.Debug("Starting launch in RP")
 	rs, err := r.rp.StartLaunch(&gorp.StartLaunchRQ{
 		StartRQ: gorp.StartRQ{
 			Name:        "bot",

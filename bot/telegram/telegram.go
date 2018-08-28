@@ -2,8 +2,7 @@ package telegram
 
 import (
 	"context"
-	"fmt"
-	log "github.com/sirupsen/logrus"
+	"github.com/apex/log"
 	"gitlab.com/avarabyeu/rpquiz/bot/engine"
 	"gitlab.com/avarabyeu/rpquiz/bot/engine/ctx"
 	"gopkg.in/telegram-bot-api.v4"
@@ -24,7 +23,7 @@ func (b *Bot) Start() error {
 
 	//tBot.Debug = true
 
-	log.Printf("Authorized on account %s", tBot.Self.UserName)
+	log.Debugf("Authorized on account %s", tBot.Self.UserName)
 
 	u := tgbotapi.NewUpdate(0)
 	u.Timeout = 60
@@ -32,36 +31,35 @@ func (b *Bot) Start() error {
 	go func() {
 		updates, err := tBot.GetUpdatesChan(u)
 		if nil != err {
-			log.Panic(err)
+			log.WithError(err).Error(err.Error())
 		}
 
 		for update := range updates {
-			fmt.Println("OK")
-			//fmt.Println(update.CallbackQuery.Message)
-			//fmt.Println(update.CallbackQuery.Data)
-			//fmt.Println(update.ChosenInlineResult.InlineMessageID)
-			//fmt.Println(update.ChosenInlineResult.Query)
-			fmt.Println("OK2")
 
 			var message string
 			var tMessage *tgbotapi.Message
+			var user string
 			if update.Message != nil {
 				message = update.Message.Text
 				tMessage = update.Message
+				user = update.Message.From.UserName
 			} else if update.CallbackQuery != nil {
 				message = update.CallbackQuery.Data
 				tMessage = update.CallbackQuery.Message
+				user = update.CallbackQuery.From.UserName
 			} else {
 				continue
 			}
 
-			if nil != update.Message {
-				log.Infof("[%s] %s", update.Message.From.UserName, message)
+			if "" != user {
+				log.Debugf("[%s] %s", user, message)
 			}
 
 			go func(update *tgbotapi.Message) {
 
-				ctx, cancel := context.WithCancel(botctx.WithOriginalMessage(context.Background(), update))
+				ctx := botctx.WithOriginalMessage(context.Background(), update)
+				ctx = botctx.WithUser(ctx, user)
+				ctx, cancel := context.WithCancel(ctx)
 				defer cancel()
 				rs := b.Dispatcher.Dispatch(ctx, message)
 				reply(tBot, update, rs)
@@ -89,6 +87,6 @@ func reply(bot *tgbotapi.BotAPI, m *tgbotapi.Message, rs *bot.Response) {
 	}
 
 	if _, err := bot.Send(msg); nil != err {
-		log.Error(err)
+		log.WithError(err).Error(err.Error())
 	}
 }

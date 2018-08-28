@@ -11,13 +11,11 @@ import (
 	"github.com/go-chi/chi"
 	"gitlab.com/avarabyeu/rpquiz/bot/db"
 	"gitlab.com/avarabyeu/rpquiz/bot/engine"
-	"gitlab.com/avarabyeu/rpquiz/bot/engine/ctx"
 	"gitlab.com/avarabyeu/rpquiz/bot/nlp"
 	"gitlab.com/avarabyeu/rpquiz/bot/telegram"
 	"gitlab.com/avarabyeu/rpquiz/intents"
 	"gitlab.com/avarabyeu/rpquiz/rp"
 	"go.uber.org/fx"
-	"gopkg.in/telegram-bot-api.v4"
 	"net/http"
 	"os"
 )
@@ -120,14 +118,14 @@ func newIntentDispatcher(nlp *nlp.IntentParser, repo db.SessionRepo, rp *rp.Repo
 			return bot.NewResponse().WithText(fmt.Sprintf("Sorry, error has occured: %s", err))
 		}),
 	}
-	d.Use(func(next bot.Handler) bot.Handler {
-		return bot.NewHandlerFunc(func(ctx context.Context, rq *bot.Request) (*bot.Response, error) {
-			if upd, ok := botctx.GetOriginalMessage(ctx).(tgbotapi.Update); ok {
-				return next.Handle(botctx.WithUser(ctx, upd.Message.From.UserName), rq)
-			}
-			return next.Handle(ctx, rq)
-		})
-	})
+	//d.Use(func(next bot.Handler) bot.Handler {
+	//	return bot.NewHandlerFunc(func(ctx context.Context, rq *bot.Request) (*bot.Response, error) {
+	//		if upd, ok := botctx.GetOriginalMessage(ctx).(*tgbotapi.Message); ok {
+	//			return next.Handle(botctx.WithUser(ctx, upd.From.UserName), rq)
+	//		}
+	//		return next.Handle(ctx, rq)
+	//	})
+	//})
 
 	return d
 }

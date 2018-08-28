@@ -105,7 +105,7 @@ func (h *QuizIntentHandler) Handle(ctx context.Context, rq *bot.Request) (*bot.R
 
 		// not a last question. Ask next one
 		if currQuestion < len(session.Questions)-1 {
-			log.Info("Handling question")
+			log.Debug("Handling question")
 
 			newQuestion := askQuestion(session.Questions[currQuestion+1])
 
@@ -124,7 +124,7 @@ func (h *QuizIntentHandler) Handle(ctx context.Context, rq *bot.Request) (*bot.R
 		}
 
 		// handle last question. close session
-		log.Info("Handling last question")
+		log.Debug("Handling last question")
 		if err := h.repo.Delete(sessionID); nil != err {
 			return nil, err
 		}

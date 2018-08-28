@@ -31,7 +31,7 @@ func IntentNameDispatcher(handlers map[string]Handler, fallback Handler) Handler
 		if nil != err {
 			// we do not return HTTP errors. Instead, some special error handler is used to notify user
 			// that something goes wrong. Such approach should simplify debugging
-			log.WithError(err).Error("Error on intent handling")
+			log.WithError(err).Errorf("Error on intent handling: %s", err.Error())
 		}
 		return rs, err
 	})

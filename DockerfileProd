@@ -1,0 +1,57 @@
+## This one is based on Debian
+FROM golang:1.11-alpine as go-build
+
+RUN apk add --update --no-cache \
+    supervisor curl cmake fann-dev wget unzip python3-dev python3 swig \
+    alpine-sdk \
+    ca-certificates \
+    tzdata
+
+RUN curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh && \
+    go get -v github.com/oxequa/realize github.com/alecthomas/gometalinter && \
+    gometalinter --install
+
+ENV WORKDIR=/go/src/gitlab.com/avarabyeu/rpquiz/
+WORKDIR $WORKDIR
+
+
+#COPY glide.lock glide.yaml Makefile ./
+COPY Gopkg.toml Gopkg.lock Makefile ./
+RUN dep ensure --vendor-only
+
+ADD ./ ./
+RUN make build
+
+FROM python:3.6-alpine
+
+RUN apk add --update --no-cache \
+    supervisor cmake curl fann-dev wget unzip swig linux-headers \
+    alpine-sdk \
+    ca-certificates \
+    tzdata
+
+RUN mkdir /fann && \
+    wget -O /fann/fann.zip http://sourceforge.net/projects/fann/files/fann/2.2.0/FANN-2.2.0-Source.zip/download && \
+    unzip /fann/fann.zip -d /fann && \
+    cd /fann/FANN-2.2.0-Source && cmake . && make install
+#RUN pip3 install --upgrade pip && pip3 install flask padatious
+
+ADD nlp/requirements.txt /requirements.txt
+RUN python -m venv /venv \
+    && /venv/bin/pip install -U pip \
+    && LIBRARY_PATH=/lib:/usr/lib /bin/sh -c "/venv/bin/pip install --no-cache-dir -r /requirements.txt"
+
+
+ENV VOCAB_DIR=${WORKDIR}/nlp/vocab/en-us
+# uWSGI configuration (customize as needed):
+ENV FLASK_APP=/nlp/wsgi.py UWSGI_WSGI_FILE=/nlp/wsgi.py UWSGI_SOCKET=:3031 UWSGI_HTTP=:5000 UWSGI_VIRTUALENV=/venv UWSGI_MASTER=1 UWSGI_WORKERS=2 UWSGI_THREADS=8 UWSGI_LAZY_APPS=1 UWSGI_WSGI_ENV_BEHAVIOR=holy PYTHONDONTWRITEBYTECODE=1
+ENV PATH="/venv/bin:${PATH}"
+ENV PYTHONPATH="/nlp"
+
+ADD nlp/ /nlp/
+COPY --from=go-build /go/src/gitlab.com/avarabyeu/rpquiz/bin/rpquiz /usr/bin/rpquiz
+
+## Building python stuff
+ADD supervisor.ini /etc/supervisor.ini
+
+ENTRYPOINT ["/usr/bin/supervisord", "--nodaemon", "--configuration", "/etc/supervisor.ini"]
