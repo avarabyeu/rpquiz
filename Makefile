@@ -36,7 +36,7 @@ fmt:
 	gofmt -l -w -s ${GOFILES_NOVENDOR}
 
 build: checkstyle
-	CGO_ENABLED=0 GOOS=linux $(GO) build ${BUILD_INFO_LDFLAGS} -o ${BINARY_DIR}/rpquiz ./
+	CGO_ENABLED=0 GOOS=linux $(GO) build ${BUILD_INFO_LDFLAGS} -o ${BINARY_DIR}/rpquiz ./bot
 
 
 run:

@@ -19,7 +19,7 @@ WORKDIR $WORKDIR
 COPY Gopkg.toml Gopkg.lock Makefile ./
 RUN dep ensure --vendor-only
 
-ADD ./bot/ ./
+ADD ./bot/ ./bot/
 RUN make build
 
 FROM python:3.6-alpine
