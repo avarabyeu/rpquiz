@@ -168,6 +168,7 @@ func (rs *Response) WithButtons(btns ...*Button) *Response {
 	return rs
 }
 
+//Respond collects multiple responses into the array
 func Respond(rss ...*Response) []*Response {
 	return rss
 }

@@ -107,13 +107,8 @@ func (h *QuizIntentHandler) Handle(ctx context.Context, rq *bot.Request) ([]*bot
 			return nil, errors.WithStack(err)
 		}
 
-		var text string
 		//if previous question was answered
-		if session.Results[currQuestion] {
-			text = "That'a correct!\n"
-		} else {
-			text = "Wrong answer!\n"
-		}
+		text := getAnswerText(session.Results[currQuestion])
 
 		// not a last question. Ask next one
 		if currQuestion < len(session.Questions)-1 {
@@ -201,6 +196,15 @@ func askQuestion(q *opentdb.Question) *bot.Response {
 	})
 
 	return rs
+}
+
+func getAnswerText(success bool) (text string) {
+	if success {
+		text = "That'a correct!\n"
+	} else {
+		text = "Wrong answer!\n"
+	}
+	return
 }
 
 func loadSession(repo db.SessionRepo, id string) (*QuizSession, error) {

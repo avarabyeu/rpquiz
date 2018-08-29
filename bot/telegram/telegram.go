@@ -79,12 +79,12 @@ func reply(bot *tgbotapi.BotAPI, m *tgbotapi.Message, rss []*bot.Response) {
 
 		buttonsCount := len(rs.Buttons)
 		if buttonsCount > 0 {
-			inlineBtns := make([]tgbotapi.InlineKeyboardButton, buttonsCount)
+			inlineBtns := make([][]tgbotapi.InlineKeyboardButton, buttonsCount)
 			for i, btn := range rs.Buttons {
-				inlineBtns[i] = tgbotapi.NewInlineKeyboardButtonData(btn.Text, btn.Data)
+				inlineBtns[i] = []tgbotapi.InlineKeyboardButton{tgbotapi.NewInlineKeyboardButtonData(btn.Text, btn.Data)}
 			}
 
-			msg.ReplyMarkup = tgbotapi.NewInlineKeyboardMarkup(inlineBtns)
+			msg.ReplyMarkup = tgbotapi.NewInlineKeyboardMarkup(inlineBtns...)
 		}
 
 		if _, err := bot.Send(msg); nil != err {
