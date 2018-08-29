@@ -1,5 +1,5 @@
 ```bash
-fly -t ci login -c http://dev.epm-rpp.projects.epam.com:7000 -u test -p test
+fly -t ci login -c http://127.0.0.1 -u test -p test
 ```
 
 ```bash

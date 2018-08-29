@@ -12,7 +12,7 @@ const acceptableConfidence = 0.5
 
 //IntentNameDispatcher is a composite Handler for DialogFlow. Dispatches incoming request over specific intent handlers
 func IntentNameDispatcher(handlers map[string]Handler, fallback Handler) Handler {
-	return HandlerFunc(func(ctx context.Context, rq *Request) (*Response, error) {
+	return HandlerFunc(func(ctx context.Context, rq *Request) ([]*Response, error) {
 		var handler Handler
 
 		if rq.Confidence < acceptableConfidence {

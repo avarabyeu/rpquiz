@@ -9,13 +9,16 @@ import (
 	"gitlab.com/avarabyeu/rpquiz/bot/engine/ctx"
 	"gitlab.com/avarabyeu/rpquiz/bot/opentdb"
 	"gitlab.com/avarabyeu/rpquiz/bot/rp"
+	"math/rand"
 	"net/url"
 	"strings"
 )
 
+const questionsCount = 5
+
 //NewStartQuizHandler creates new start intent handler - greeting and first question
 func NewStartQuizHandler(repo db.SessionRepo, rp *rp.Reporter) bot.Handler {
-	return bot.NewHandlerFunc(func(ctx context.Context, rq *bot.Request) (*bot.Response, error) {
+	return bot.NewHandlerFunc(func(ctx context.Context, rq *bot.Request) ([]*bot.Response, error) {
 		sessionID := botctx.GetUser(ctx)
 
 		log.Infof("Starting new quiz for %s", sessionID)
@@ -24,14 +27,13 @@ func NewStartQuizHandler(repo db.SessionRepo, rp *rp.Reporter) bot.Handler {
 		if err != nil {
 			return nil, err
 		}
-		count := 5
-		questions, err := opentdb.NewClient().GetQuestions(count)
+		questions, err := opentdb.NewClient().GetQuestions(questionsCount)
 		if err != nil {
 			return nil, err
 		}
 
-		q := questions[0]
-		testID, err := rp.StartTest(rpID, q.Question)
+		q := askQuestion(questions[0])
+		testID, err := rp.StartTest(rpID, q.Text)
 		if nil != err {
 			return nil, err
 		}
@@ -46,14 +48,13 @@ func NewStartQuizHandler(repo db.SessionRepo, rp *rp.Reporter) bot.Handler {
 			return nil, err
 		}
 
-		q.Question = "We are starting new quiz!\n" + q.Question
-		return askQuestion(q), nil
+		return bot.Respond(bot.NewResponse().WithText("We are starting new quiz!"), q), nil
 	})
 }
 
 //NewExitQuizHandler creates new intent handler that processes quit from quiz
 func NewExitQuizHandler(repo db.SessionRepo, rp *rp.Reporter) bot.Handler {
-	return bot.NewHandlerFunc(func(ctx context.Context, rq *bot.Request) (*bot.Response, error) {
+	return bot.NewHandlerFunc(func(ctx context.Context, rq *bot.Request) ([]*bot.Response, error) {
 		sessionID := botctx.GetUser(ctx)
 		if rq.Confidence >= 0.8 && "quit" == rq.Intent {
 
@@ -71,7 +72,7 @@ func NewExitQuizHandler(repo db.SessionRepo, rp *rp.Reporter) bot.Handler {
 			}
 
 		}
-		return bot.NewResponse().WithText("Thanks for quiizing!"), nil
+		return bot.Respond(bot.NewResponse().WithText("Thanks for quizzing!")), nil
 
 	})
 }
@@ -88,7 +89,7 @@ func NewQuizIntentHandler(repo db.SessionRepo, rp *rp.Reporter) *QuizIntentHandl
 }
 
 //Handle handles answer to a question
-func (h *QuizIntentHandler) Handle(ctx context.Context, rq *bot.Request) (*bot.Response, error) {
+func (h *QuizIntentHandler) Handle(ctx context.Context, rq *bot.Request) ([]*bot.Response, error) {
 	sessionID := botctx.GetUser(ctx)
 
 	session, err := loadSession(h.repo, sessionID)
@@ -101,6 +102,14 @@ func (h *QuizIntentHandler) Handle(ctx context.Context, rq *bot.Request) (*bot.R
 		//handle answer to the previous question
 		if err := h.handleAnswer(rq, session, currQuestion); nil != err {
 			return nil, errors.WithStack(err)
+		}
+
+		var text string
+		//if previous question was answered
+		if session.Results[currQuestion] {
+			text = "That'a correct!\n"
+		} else {
+			text = "Wrong answer!\n"
 		}
 
 		// not a last question. Ask next one
@@ -119,7 +128,7 @@ func (h *QuizIntentHandler) Handle(ctx context.Context, rq *bot.Request) (*bot.R
 				return nil, err
 			}
 
-			return newQuestion, nil
+			return bot.Respond(bot.NewResponse().WithText(text), newQuestion), nil
 			// handle question
 		}
 
@@ -131,11 +140,12 @@ func (h *QuizIntentHandler) Handle(ctx context.Context, rq *bot.Request) (*bot.R
 		if err := h.rp.FinishLaunch(session.LaunchID); nil != err {
 			return nil, err
 		}
-		return bot.NewResponse().WithText("Thank you! You passed a quiz!"), nil
+		return bot.Respond(bot.NewResponse().WithText(text), bot.NewResponse().WithText("Thank you! You passed a quiz!")), nil
 
 	}
 
-	return bot.NewResponse().WithText("hm.."), nil
+	//should never happen :)
+	return bot.Respond(bot.NewResponse().WithText("hm..")), nil
 }
 
 func (h *QuizIntentHandler) handleAnswer(rq *bot.Request, session *QuizSession, currQuestion int) error {
@@ -160,8 +170,9 @@ func (h *QuizIntentHandler) handleAnswer(rq *bot.Request, session *QuizSession, 
 func askQuestion(q *opentdb.Question) *bot.Response {
 	qText, _ := url.PathUnescape(q.Question)
 	rs := bot.NewResponse().WithText(qText)
+	var btns []*bot.Button
 	if len(q.IncorrectAnswers) > 0 {
-		btns := make([]*bot.Button, len(q.IncorrectAnswers))
+		btns = make([]*bot.Button, len(q.IncorrectAnswers)+1)
 		for i, btn := range q.IncorrectAnswers {
 			btnText, _ := url.PathUnescape(btn)
 			btns[i] = &bot.Button{
@@ -171,6 +182,21 @@ func askQuestion(q *opentdb.Question) *bot.Response {
 		}
 		rs.WithButtons(btns...)
 	}
+	if len(btns) == 0 {
+		btns = make([]*bot.Button, 1)
+	}
+	correctAnswerText, _ := url.PathUnescape(q.CorrectAnswer)
+
+	btns[len(btns)-1] = &bot.Button{
+		Data: correctAnswerText,
+		Text: correctAnswerText,
+	}
+
+	//shuffle the array
+	rand.Shuffle(len(btns), func(i, j int) {
+		btns[i], btns[j] = btns[j], btns[i]
+	})
+
 	return rs
 }
 

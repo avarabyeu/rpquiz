@@ -61,8 +61,8 @@ func (b *Bot) Start() error {
 				ctx = botctx.WithUser(ctx, user)
 				ctx, cancel := context.WithCancel(ctx)
 				defer cancel()
-				rs := b.Dispatcher.Dispatch(ctx, message)
-				reply(tBot, update, rs)
+				rss := b.Dispatcher.Dispatch(ctx, message)
+				reply(tBot, update, rss)
 			}(tMessage)
 
 		}
@@ -71,22 +71,25 @@ func (b *Bot) Start() error {
 
 }
 
-func reply(bot *tgbotapi.BotAPI, m *tgbotapi.Message, rs *bot.Response) {
-	msg := tgbotapi.NewMessage(m.Chat.ID, rs.Text)
-	msg.ReplyToMessageID = m.MessageID
-	msg.ParseMode = "Markdown"
+func reply(bot *tgbotapi.BotAPI, m *tgbotapi.Message, rss []*bot.Response) {
+	for _, rs := range rss {
+		msg := tgbotapi.NewMessage(m.Chat.ID, rs.Text)
+		//msg.ReplyToMessageID = m.MessageID
+		msg.ParseMode = "Markdown"
 
-	buttonsCount := len(rs.Buttons)
-	if buttonsCount > 0 {
-		inlineBtns := make([]tgbotapi.InlineKeyboardButton, buttonsCount)
-		for i, btn := range rs.Buttons {
-			inlineBtns[i] = tgbotapi.NewInlineKeyboardButtonData(btn.Text, btn.Data)
+		buttonsCount := len(rs.Buttons)
+		if buttonsCount > 0 {
+			inlineBtns := make([]tgbotapi.InlineKeyboardButton, buttonsCount)
+			for i, btn := range rs.Buttons {
+				inlineBtns[i] = tgbotapi.NewInlineKeyboardButtonData(btn.Text, btn.Data)
+			}
+
+			msg.ReplyMarkup = tgbotapi.NewInlineKeyboardMarkup(inlineBtns)
 		}
 
-		msg.ReplyMarkup = tgbotapi.NewInlineKeyboardMarkup(inlineBtns)
+		if _, err := bot.Send(msg); nil != err {
+			log.WithError(err).Error(err.Error())
+		}
 	}
 
-	if _, err := bot.Send(msg); nil != err {
-		log.WithError(err).Error(err.Error())
-	}
 }

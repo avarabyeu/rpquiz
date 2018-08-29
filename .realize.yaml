@@ -4,7 +4,7 @@ settings:
     interval: 0s
 schema:
 - name: rpquiz
-  path: .
+  path: ./bot/
   watcher:
     extensions:
     - go

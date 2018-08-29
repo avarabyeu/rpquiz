@@ -20,7 +20,9 @@ jobs:
   - get: rpquiz-git
     trigger: true
   - put: rpquiz-docker-image
+    get_params: { skip_download: true }
     params:
+      cache: true
       params: {save: true}
       build: rpquiz-git
       dockerfile: rpquiz-git/DockerfileProd

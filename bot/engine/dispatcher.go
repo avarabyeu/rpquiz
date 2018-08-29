@@ -11,11 +11,11 @@ import (
 type (
 	//Handler handles some particular user intent
 	Handler interface {
-		Handle(ctx context.Context, rq *Request) (*Response, error)
+		Handle(ctx context.Context, rq *Request) ([]*Response, error)
 	}
 	//ErrorHandler converts error to human-readable response
 	ErrorHandler interface {
-		Handle(ctx context.Context, err error) *Response
+		Handle(ctx context.Context, err error) []*Response
 	}
 
 	//Middleware represents intent handler interceptor/middleware
@@ -58,30 +58,30 @@ type (
 	// ordinary functions as intent handlers.  If f is a function
 	// with the appropriate signature, HandlerFunc(f) is a
 	// Handler object that calls f.
-	HandlerFunc func(ctx context.Context, rq *Request) (*Response, error)
+	HandlerFunc func(ctx context.Context, rq *Request) ([]*Response, error)
 
 	//ErrorHandlerFunc type is an adapter to allow the use of
 	// ordinary functions as intent error handlers.
-	ErrorHandlerFunc func(ctx context.Context, err error) *Response
+	ErrorHandlerFunc func(ctx context.Context, err error) []*Response
 )
 
 // Handle calls f(w, r).
-func (f HandlerFunc) Handle(ctx context.Context, rq *Request) (*Response, error) {
+func (f HandlerFunc) Handle(ctx context.Context, rq *Request) ([]*Response, error) {
 	return f(ctx, rq)
 }
 
 // Handle calls f(w, r).
-func (f ErrorHandlerFunc) Handle(ctx context.Context, err error) *Response {
+func (f ErrorHandlerFunc) Handle(ctx context.Context, err error) []*Response {
 	return f(ctx, err)
 }
 
 //NewHandlerFunc factory method to have better autocomplete while creating HandlerFunc
-func NewHandlerFunc(f func(ctx context.Context, rq *Request) (*Response, error)) HandlerFunc {
+func NewHandlerFunc(f func(ctx context.Context, rq *Request) ([]*Response, error)) HandlerFunc {
 	return f
 }
 
 //DispatchRQ dispatches parsed user question to appropriate handler
-func (d *Dispatcher) DispatchRQ(ctx context.Context, rq *Request) (rs *Response) {
+func (d *Dispatcher) DispatchRQ(ctx context.Context, rq *Request) (rs []*Response) {
 	d.init()
 
 	defer func() {
@@ -110,7 +110,7 @@ func (d *Dispatcher) Use(m func(Handler) Handler) *Dispatcher {
 }
 
 //Dispatch parses user question and then dispatches to appropriate handler
-func (d *Dispatcher) Dispatch(ctx context.Context, msg string) (rs *Response) {
+func (d *Dispatcher) Dispatch(ctx context.Context, msg string) (rs []*Response) {
 	intent := d.NLP.Parse(msg)
 
 	rq := &Request{
@@ -166,4 +166,8 @@ func (rs *Response) WithText(t string) *Response {
 func (rs *Response) WithButtons(btns ...*Button) *Response {
 	rs.Buttons = btns
 	return rs
+}
+
+func Respond(rss ...*Response) []*Response {
+	return rss
 }
