@@ -56,7 +56,8 @@ func NewStartQuizHandler(repo db.SessionRepo, rp *rp.Reporter) bot.Handler {
 func NewExitQuizHandler(repo db.SessionRepo, rp *rp.Reporter) bot.Handler {
 	return bot.NewHandlerFunc(func(ctx context.Context, rq *bot.Request) ([]*bot.Response, error) {
 		sessionID := botctx.GetUser(ctx)
-		if rq.Confidence >= 0.8 && "quit" == rq.Intent {
+
+		if rq.Confidence >= 0.8 {
 
 			session, err := loadSession(repo, sessionID)
 			if err != nil {
@@ -66,6 +67,8 @@ func NewExitQuizHandler(repo db.SessionRepo, rp *rp.Reporter) bot.Handler {
 			if err := repo.Delete(sessionID); err != nil {
 				return nil, err
 			}
+
+			//TODO finish active test (if any)
 
 			if err := rp.FinishLaunch(session.LaunchID); nil != err {
 				return nil, err

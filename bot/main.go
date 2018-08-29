@@ -154,7 +154,7 @@ func newTelegramBot(lc fx.Lifecycle, cfg *conf, dispatcher *bot.Dispatcher) *tel
 	return tBot
 }
 
-func register(mux chi.Router) {
+func register(mux chi.Router, bot *telegram.Bot) {
 	mux.Get("/health", func(w http.ResponseWriter, rq *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		if _, err := w.Write([]byte(`{"status" : "ok"}`)); nil != err {
