@@ -95,8 +95,8 @@ func newMux(lc fx.Lifecycle, cfg *conf) chi.Router {
 	return mux
 }
 
-func newSessionRepo(lc fx.Lifecycle) (db.SessionRepo, error) {
-	bdb, err := bolt.Open("my.db", 0600, nil)
+func newSessionRepo(lc fx.Lifecycle, cfg *conf) (db.SessionRepo, error) {
+	bdb, err := bolt.Open(cfg.DbFile, 0600, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -154,7 +154,14 @@ func newTelegramBot(lc fx.Lifecycle, cfg *conf, dispatcher *bot.Dispatcher) *tel
 	return tBot
 }
 
-func register(tb *telegram.Bot) {
+func register(mux chi.Router) {
+	mux.Get("/health", func(w http.ResponseWriter, rq *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		if _, err := w.Write([]byte(`{"status" : "ok"}`)); nil != err {
+			log.WithError(err).Error("health check response error")
+		}
+		w.WriteHeader(http.StatusOK)
+	})
 }
 
 func logErr(err error) {
