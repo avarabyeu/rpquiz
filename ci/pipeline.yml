@@ -1,3 +1,9 @@
+resource_types:
+- name: ssh
+  type: docker-image
+  source:
+    repository: quay.io/avarabyeu/concourse-ssh-resource:latest
+
 resources:
 - name: rpquiz-git
   type: git
@@ -5,12 +11,20 @@ resources:
     uri: git@gitlab.com:avarabyeu/rpquiz.git
     branch: master
     private_key: ((repo_key))
+
 - name: rpquiz-docker-image
   type: docker-image
   source:
     repository: registry.gitlab.com/avarabyeu/rpquiz
     username: ((docker_login))
     password: ((docker_pass))
+
+- name: staging-server
+  type: ssh
+  source:
+    host: ((deploy_host))
+    user: ((deploy_host_user))
+    password: ((deploy_host_password))
 
 jobs:
 - name: build
@@ -34,25 +48,17 @@ jobs:
     trigger: true
     # Only if build job has passed
     passed: [build]
-  - task: deploy-docker
+  - put: staging-server
     params:
-      DOCKER_HOST: ((docker_host))
-      DOCKER_LOGIN: ((docker_login))
-      DOCKER_PASS: ((docker_pass))
-    config:
-      # Use a docker image with AWS eb-cli to init, create environment and deploy application
-      platform: linux
-      image_resource:
-        type: docker-image
-        source:
-          repository: docker:dind
-      inputs:
-      - name: rpquiz-docker-image
-      run:
-        path: sh
-        args:
-        - -c
-        - |
-          docker login -u ${DOCKER_LOGIN} -p ${DOCKER_PASS} ${DOCKER_HOST}
-          docker load -i ./rpquiz-docker-image/image
-          docker images
+      interpreter: /bin/sh
+      script: |
+        docker stop rpquiz
+        docker rm -v -f rpquiz
+        docker login -u "<docker_login>" -p "<docker_pass>" registry.gitlab.com
+        docker pull registry.gitlab.com/avarabyeu/rpquiz
+        docker run -d -p 4200:4200 --restart=always --name rpquiz registry.gitlab.com/avarabyeu/rpquiz/rpquiz
+      placeholders:
+      - name: "<docker_login>"
+        value: ((repo_key))
+      - name: "<docker_pass>"
+        value: ((docker_pass))
