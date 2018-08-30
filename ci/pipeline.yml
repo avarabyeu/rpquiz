@@ -2,7 +2,7 @@ resource_types:
 - name: ssh
   type: docker-image
   source:
-    repository: quay.io/avarabyeu/concourse-ssh-resource:latest
+    repository: quay.io/avarabyeu/concourse-ssh-resource
 
 resources:
 - name: rpquiz-git
@@ -52,11 +52,10 @@ jobs:
     params:
       interpreter: /bin/sh
       script: |
-        docker stop rpquiz
-        docker rm -v -f rpquiz
-        docker login -u "<docker_login>" -p "<docker_pass>" registry.gitlab.com
+        echo "<docker_pass>" | docker login -u "<docker_login>" registry.gitlab.com --password-stdin
         docker pull registry.gitlab.com/avarabyeu/rpquiz
-        docker run -d -p 4200:4200 --restart=always --name rpquiz registry.gitlab.com/avarabyeu/rpquiz/rpquiz
+        docker rm -f rpquiz || true
+        docker run -d -p 4200:4200 --restart=always --name rpquiz registry.gitlab.com/avarabyeu/rpquiz
       placeholders:
       - name: "<docker_login>"
         value: ((repo_key))
