@@ -16,6 +16,13 @@ resources:
     uri: https://github.com/avarabyeu/rpquiz.git
     branch: master
 
+- name: rpquiz-git-dockerfiles
+  type: git
+  source:
+    uri: https://github.com/avarabyeu/rpquiz.git
+    branch: master
+
+
 - name: go-base-image
   type: docker-image
   source:
@@ -47,7 +54,7 @@ resources:
 jobs:
 - name: build-base
   plan:
-  - get: rpquiz-git
+  - get: rpquiz-git-dockerfiles
     trigger: false
   - put: go-base-image
     get_params: { skip_download: true }
@@ -73,7 +80,6 @@ jobs:
     params: {save: true}
   - get: rpquiz-git
     trigger: true
-    passed: [build-base]
   - put: rpquiz-docker-image
     get_params: { skip_download: true }
     params:
