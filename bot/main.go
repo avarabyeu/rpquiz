@@ -26,8 +26,8 @@ import (
 type (
 	conf struct {
 		Port      int    `env:"PORT" envDefault:"4200"`
-		RpUUID    string `env:"RP_UUID" envDefault:"a47d5107-edc0-46b9-9258-4e1f8fcfc0ef"`
-		RpProject string `env:"RP_PROJECT" envDefault:"andrei_varabyeu_personal"`
+		RpUUID    string `env:"RP_UUID,required"`
+		RpProject string `env:"RP_PROJECT,required"`
 		RpHost    string `env:"RP_HOST" envDefault:"https://rp.epam.com"`
 
 		//DB settings
@@ -37,7 +37,7 @@ type (
 		NlpURL string `env:"NLP_URL" envDefault:"http://localhost:5000"`
 
 		//Telegram
-		TelegramToken string `env:"TG_TOKEN" envDefault:"597153786:AAGw8YF-LJh9V0aP9Cq-yWheMM9dPhiVjAU"`
+		TelegramToken string `env:"TG_TOKEN,required"`
 	}
 )
 
