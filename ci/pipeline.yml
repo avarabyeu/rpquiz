@@ -76,7 +76,7 @@ jobs:
       script: |
         docker pull "<image>"
         docker rm -f rpquiz || true
-        docker run -d -p "<deploy_port>":"<deploy_port>" --restart=always --name rpquiz -e TG_TOKEN="<telegram_token>" "<image>"
+        docker run -d -p "<deploy_port>":"<deploy_port>" --restart=always --name rpquiz -e RP_PROJECT="<rp_project>" -e RP_UUID="<rp_uuid>" -e TG_TOKEN="<telegram_token>" "<image>"
       placeholders:
       - name: "<telegram_token>"
         value: ((telegram_token))
@@ -84,6 +84,10 @@ jobs:
         value:  ((image))
       - name: "<deploy_port>"
         value: ((deploy_port))
+      - name: "<rp_uuid>"
+        value: ((rp_uuid))
+      - name: "<rp_project>"
+        value: ((rp_project))
 
 - name: Test
   plan:
