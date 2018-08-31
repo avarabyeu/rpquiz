@@ -49,7 +49,7 @@ func NewStartQuizHandler(repo db.SessionRepo, rp *rp.Reporter) bot.Handler {
 			return nil, err
 		}
 
-		return bot.Respond(bot.NewResponse().WithText("We are starting new quiz!"), q), nil
+		return bot.Respond(bot.NewResponse().WithText(fmt.Sprintf("Hi %s! We are starting new quiz!", sessionID)), q), nil
 	})
 }
 
@@ -140,7 +140,8 @@ func (h *QuizIntentHandler) Handle(ctx context.Context, rq *bot.Request) ([]*bot
 			return nil, err
 		}
 		return bot.Respond(bot.NewResponse().WithText(text), bot.NewResponse().
-			WithText(fmt.Sprintf("Thank you! You passed a quiz! Your score is %d", calculateScore(session)))), nil
+			WithText(fmt.Sprintf("Thank you! You passed a quiz! Your score is %d", calculateScore(session))),
+			bot.NewResponse().WithText(`Don't forget to star us!\nhttps://github.com/avarabyeu/rpquiz\nhttps://github.com/reportportal/reportportal`)), nil
 
 	}
 
