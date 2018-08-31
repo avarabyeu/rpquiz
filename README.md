@@ -7,7 +7,7 @@
 | PORT           | 4200                      | Server Port                         |
 | RP_HOST        | https://rp.epam.com       | ReportPortal URL                    |
 | RP_UUID        |                           | ReportPortal UUID                   |
-| RP_PROJECT     | andrei_varabyeu_personal  | Project results will be reported to |
+| RP_PROJECT     |                           | Project results will be reported to |
 | TG_TOKEN       |                           | Telegram Token                      |
 | DB_FILE        | qabot.db                  | Internal Session DB file name       |
 
