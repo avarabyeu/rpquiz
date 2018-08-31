@@ -2,6 +2,7 @@ package intents
 
 import (
 	"context"
+	"fmt"
 	"github.com/apex/log"
 	"github.com/avarabyeu/rpquiz/bot/db"
 	"github.com/avarabyeu/rpquiz/bot/engine"
@@ -138,7 +139,8 @@ func (h *QuizIntentHandler) Handle(ctx context.Context, rq *bot.Request) ([]*bot
 		if err := h.rp.FinishLaunch(session.LaunchID); nil != err {
 			return nil, err
 		}
-		return bot.Respond(bot.NewResponse().WithText(text), bot.NewResponse().WithText("Thank you! You passed a quiz!")), nil
+		return bot.Respond(bot.NewResponse().WithText(text), bot.NewResponse().
+			WithText(fmt.Sprintf("Thank you! You passed a quiz! Your score is %d", calculateScore(session)))), nil
 
 	}
 
@@ -214,4 +216,14 @@ func loadSession(repo db.SessionRepo, id string) (*QuizSession, error) {
 		return nil, err
 	}
 	return &session, nil
+}
+
+func calculateScore(s *QuizSession) int {
+	score := 0
+	for _, success := range s.Results {
+		if success {
+			score++
+		}
+	}
+	return score
 }
