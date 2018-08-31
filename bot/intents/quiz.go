@@ -117,28 +117,13 @@ func (h *QuizIntentHandler) Handle(ctx context.Context, rq *bot.Request) ([]*bot
 			return nil, errors.WithStack(err)
 		}
 
-		//if previous question was answered
-		text := getAnswerText(session.Results[currQuestion])
-
 		// not a last question. Ask next one
 		if currQuestion < len(session.Questions)-1 {
-			log.Debug("Handling question")
-
-			newQuestion := askQuestion(session.Questions[currQuestion+1])
-
-			testID, err := h.rp.StartTest(session.LaunchID, newQuestion.Text)
-			if nil != err {
-				return nil, err
-			}
-			session.TestID = testID
-
-			if err := h.repo.Save(sessionID, session); nil != err {
-				return nil, err
-			}
-
-			return bot.Respond(bot.NewResponse().WithText(text), newQuestion), nil
-			// handle question
+			return h.handleNewQuestion(sessionID, session, currQuestion)
 		}
+
+		//if previous question was answered
+		text := getAnswerText(session.Results[currQuestion])
 
 		// handle last question. close session
 		log.Debug("Handling last question")
@@ -156,6 +141,27 @@ func (h *QuizIntentHandler) Handle(ctx context.Context, rq *bot.Request) ([]*bot
 
 	//should never happen :)
 	return bot.Respond(bot.NewResponse().WithText("hm..")), nil
+}
+
+func (h *QuizIntentHandler) handleNewQuestion(sessionID string, session *QuizSession, currQuestion int) ([]*bot.Response, error) {
+	log.Debug("Handling question")
+
+	newQuestion := askQuestion(session.Questions[currQuestion+1])
+
+	testID, err := h.rp.StartTest(session.LaunchID, newQuestion.Text)
+	if nil != err {
+		return nil, err
+	}
+	session.TestID = testID
+
+	if err := h.repo.Save(sessionID, session); nil != err {
+		return nil, err
+	}
+	//if previous question was answered
+	text := getAnswerText(session.Results[currQuestion])
+
+	return bot.Respond(bot.NewResponse().WithText(text), newQuestion), nil
+	// handle question
 }
 
 func (h *QuizIntentHandler) handleAnswer(rq *bot.Request, session *QuizSession, currQuestion int) error {

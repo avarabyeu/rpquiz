@@ -5,7 +5,7 @@
 
 ### Golang
 vendor/
-
+bin/
 
 ### NLP
 intent_cache/

@@ -6,6 +6,7 @@ import (
 	"github.com/avarabyeu/rpquiz/bot/engine"
 	"github.com/avarabyeu/rpquiz/bot/engine/ctx"
 	"gopkg.in/telegram-bot-api.v4"
+	"strconv"
 )
 
 //Bot is telegram bot abstraction
@@ -39,14 +40,17 @@ func (b *Bot) Start() error {
 			var message string
 			var tMessage *tgbotapi.Message
 			var user string
+			var userID string
 			if update.Message != nil {
 				message = update.Message.Text
 				tMessage = update.Message
 				user = update.Message.From.UserName
+				userID = strconv.Itoa(update.Message.From.ID)
 			} else if update.CallbackQuery != nil {
 				message = update.CallbackQuery.Data
 				tMessage = update.CallbackQuery.Message
 				user = update.CallbackQuery.From.UserName
+				userID = strconv.Itoa(update.CallbackQuery.From.ID)
 			} else {
 				continue
 			}
@@ -58,7 +62,8 @@ func (b *Bot) Start() error {
 			go func(update *tgbotapi.Message) {
 
 				ctx := botctx.WithOriginalMessage(context.Background(), update)
-				ctx = botctx.WithUser(ctx, user)
+				ctx = botctx.WithUserName(ctx, user)
+				ctx = botctx.WithUserID(ctx, userID)
 				ctx, cancel := context.WithCancel(ctx)
 				defer cancel()
 				rss := b.Dispatcher.Dispatch(ctx, message)
