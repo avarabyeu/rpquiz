@@ -12,7 +12,6 @@ import (
 	"github.com/avarabyeu/rpquiz/bot/nlp"
 	"github.com/avarabyeu/rpquiz/bot/rp"
 	"github.com/avarabyeu/rpquiz/bot/telegram"
-	"github.com/avarabyeu/rpquiz/vendor/github.com/coreos/bbolt"
 	"github.com/caarlos0/env"
 	"github.com/coreos/bbolt"
 	"github.com/go-chi/chi"
