@@ -136,7 +136,7 @@ func (h *QuizIntentHandler) Handle(ctx context.Context, rq *bot.Request) ([]*bot
 		return bot.Respond(bot.NewResponse().WithText(text), bot.NewResponse().
 			WithText(fmt.Sprintf("Thank you! You passed a quiz! Your score is %d", calculateScore(session))),
 			bot.NewResponse().
-				WithText(fmt.Sprintf("Don't forget to star us!\n%s\n%s",
+				WithText(fmt.Sprintf("Don't forget to star us!\n%s",
 					markdownLink("https://github.com/avarabyeu/rpquiz"))),
 			bot.NewResponse().WithText(markdownLink("https://github.com/reportportal/reportportal"))), nil
 
