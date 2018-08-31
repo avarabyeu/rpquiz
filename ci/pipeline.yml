@@ -51,8 +51,8 @@ jobs:
   - put: staging-server
     params:
       interpreter: /bin/sh
+      #        echo "<docker_pass>" | docker login -u "<docker_login>" quay.io/avarabyeu/rpquiz --password-stdin
       script: |
-#        echo "<docker_pass>" | docker login -u "<docker_login>" quay.io/avarabyeu/rpquiz --password-stdin
         docker pull quay.io/avarabyeu/rpquiz
         docker rm -f rpquiz || true
         docker run -d -p 4200:4200 --restart=always --name rpquiz -e TG_TOKEN="<docker_pass>" quay.io/avarabyeu/rpquiz
