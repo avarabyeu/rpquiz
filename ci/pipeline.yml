@@ -16,6 +16,19 @@ resources:
     uri: https://github.com/avarabyeu/rpquiz.git
     branch: master
 
+- name: go-base
+  type: docker-image
+  source:
+    repository: golang
+    tag: 1.11-alpine
+
+- name: python-base
+  type: docker-image
+  source:
+    repository: python
+    tag: 3.6-alpine
+
+
 - name: rpquiz-docker-image
   type: docker-image
   source:
@@ -32,15 +45,20 @@ resources:
 
 jobs:
 - name: build
-  public: true
-  serial: true
+#  public: true
+#  serial: true
   plan:
+  - get: go-base
+    params: {save: true}
+  - get: python-base
+    params: {save: true}
   - get: rpquiz-git
     trigger: true
   - put: rpquiz-docker-image
     get_params: { skip_download: true }
     params:
-      cache: true
+      load_bases: [go-base,python-base]
+#      cache: true
       params: {save: true}
       build: rpquiz-git
       dockerfile: rpquiz-git/DockerfileProd

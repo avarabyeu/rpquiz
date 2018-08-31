@@ -20,7 +20,10 @@ const questionsCount = 5
 //NewStartQuizHandler creates new start intent handler - greeting and first question
 func NewStartQuizHandler(repo db.SessionRepo, rp *rp.Reporter) bot.Handler {
 	return bot.NewHandlerFunc(func(ctx context.Context, rq *bot.Request) ([]*bot.Response, error) {
-		sessionID := botctx.GetUser(ctx)
+		sessionID := botctx.GetUserID(ctx)
+		if "" == sessionID {
+			return nil, errors.Errorf("User ID isn't recognized")
+		}
 
 		log.Infof("Starting new quiz for %s", sessionID)
 		//handle start, first question
@@ -49,14 +52,17 @@ func NewStartQuizHandler(repo db.SessionRepo, rp *rp.Reporter) bot.Handler {
 			return nil, err
 		}
 
-		return bot.Respond(bot.NewResponse().WithText(fmt.Sprintf("Hi %s! We are starting new quiz!", sessionID)), q), nil
+		return bot.Respond(bot.NewResponse().WithText(fmt.Sprintf("Hi %s! We are starting new quiz!", botctx.GetUserName(ctx))), q), nil
 	})
 }
 
 //NewExitQuizHandler creates new intent handler that processes quit from quiz
 func NewExitQuizHandler(repo db.SessionRepo, rp *rp.Reporter) bot.Handler {
 	return bot.NewHandlerFunc(func(ctx context.Context, rq *bot.Request) ([]*bot.Response, error) {
-		sessionID := botctx.GetUser(ctx)
+		sessionID := botctx.GetUserID(ctx)
+		if "" == sessionID {
+			return nil, errors.Errorf("User ID isn't recognized")
+		}
 
 		if rq.Confidence >= 0.8 {
 
@@ -94,7 +100,10 @@ func NewQuizIntentHandler(repo db.SessionRepo, rp *rp.Reporter) *QuizIntentHandl
 
 //Handle handles answer to a question
 func (h *QuizIntentHandler) Handle(ctx context.Context, rq *bot.Request) ([]*bot.Response, error) {
-	sessionID := botctx.GetUser(ctx)
+	sessionID := botctx.GetUserID(ctx)
+	if "" == sessionID {
+		return nil, errors.Errorf("User ID isn't recognized")
+	}
 
 	session, err := loadSession(h.repo, sessionID)
 	if nil != err || nil == session {

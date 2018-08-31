@@ -5,19 +5,34 @@ import "context"
 type contextKey string
 
 const (
-	userKey         contextKey = "userKey"
+	userNameKey     contextKey = "userNameKey"
+	userIDKey       contextKey = "userIDKey"
 	originalMessage contextKey = "originalMessage"
 	session         contextKey = "session"
 )
 
-//WithUser adds a user to the context
-func WithUser(ctx context.Context, u string) context.Context {
-	return context.WithValue(ctx, userKey, u)
+//WithUserName adds a user name to the context
+func WithUserName(ctx context.Context, u string) context.Context {
+	return context.WithValue(ctx, userNameKey, u)
 }
 
-//GetUser takes a user from the context
-func GetUser(ctx context.Context) string {
-	u, ok := ctx.Value(userKey).(string)
+//GetUserName takes a user from the context
+func GetUserName(ctx context.Context) string {
+	u, ok := ctx.Value(userNameKey).(string)
+	if !ok {
+		return ""
+	}
+	return u
+}
+
+//WithUserID adds a user ID to the context
+func WithUserID(ctx context.Context, u string) context.Context {
+	return context.WithValue(ctx, userIDKey, u)
+}
+
+//GetUserID takes a user ID from the context
+func GetUserID(ctx context.Context) string {
+	u, ok := ctx.Value(userIDKey).(string)
 	if !ok {
 		return ""
 	}
