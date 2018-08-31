@@ -56,12 +56,12 @@ func (r *Reporter) FinishTest(testID string, pass bool) error {
 }
 
 //StartLaunch starts launch in report portal
-func (r *Reporter) StartLaunch() (string, error) {
+func (r *Reporter) StartLaunch(name string) (string, error) {
 	log.Debug("Starting launch in RP")
 	rs, err := r.rp.StartLaunch(&gorp.StartLaunchRQ{
 		StartRQ: gorp.StartRQ{
-			Name:        "bot",
-			Description: "test desc",
+			Name: name,
+			//Description: "test desc",
 			StartTime: gorp.Timestamp{
 				Time: time.Now(),
 			},

@@ -24,10 +24,11 @@ func NewStartQuizHandler(repo db.SessionRepo, rp *rp.Reporter) bot.Handler {
 		if "" == sessionID {
 			return nil, errors.Errorf("User ID isn't recognized")
 		}
+		userName := botctx.GetUserName(ctx)
 
 		log.Infof("Starting new quiz for %s", sessionID)
 		//handle start, first question
-		rpID, err := rp.StartLaunch()
+		rpID, err := rp.StartLaunch(fmt.Sprintf("Quiz by %s", userName))
 		if err != nil {
 			return nil, err
 		}
@@ -52,7 +53,7 @@ func NewStartQuizHandler(repo db.SessionRepo, rp *rp.Reporter) bot.Handler {
 			return nil, err
 		}
 
-		return bot.Respond(bot.NewResponse().WithText(fmt.Sprintf("Hi %s! We are starting new quiz!", botctx.GetUserName(ctx))), q), nil
+		return bot.Respond(bot.NewResponse().WithText(fmt.Sprintf("Hi %s! We are starting new quiz!")), q), nil
 	})
 }
 
