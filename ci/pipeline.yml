@@ -20,12 +20,15 @@ resources:
   type: docker-image
   source:
     repository: quay.io/avarabyeu/golang-base
+    username: ((docker_login))
+    password: ((docker_pass))
 
 - name: rpbot-base-image
   type: docker-image
   source:
     repository: quay.io/avarabyeu/rpbot-base
-
+    username: ((docker_login))
+    password: ((docker_pass))
 
 - name: rpquiz-docker-image
   type: docker-image
