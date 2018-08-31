@@ -8,7 +8,7 @@ BINARY_DIR=bin
 
 GODIRS_NOVENDOR = $(shell go list ./... | grep -v /vendor/)
 GOFILES_NOVENDOR = $(shell find . -type f -name '*.go' -not -path "./vendor/*")
-PACKAGE_BUILD_INFO=gitlab.com/avarabyeu/rpquiz
+PACKAGE_BUILD_INFO=github.com/avarabyeu/rpquiz
 
 BUILD_INFO_LDFLAGS=-ldflags "-extldflags '"-static"' -X ${PACKAGE_BUILD_INFO}/util.buildDate=${BUILD_DATE} -X ${PACKAGE_BUILD_INFO}/util.version=${version}"
 

@@ -54,7 +54,7 @@ vault write concourse/<team-name>/<variable-name> value=<variable-value>
 ```
 ```sh
 cat myfile.txt | vault write concourse/main/repo_key value=-
-vault write concourse/main/docker_host value=ecsc00a01760.epam.com:2375
+vault write concourse/main/docker_host value=my_host:2375
 ```
 
 vault write concourse/main/repo_key value=<variable-value>

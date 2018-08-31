@@ -11,7 +11,7 @@ RUN curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh && 
     go get -v github.com/oxequa/realize github.com/alecthomas/gometalinter && \
     gometalinter --install
 
-ENV WORKDIR=/go/src/gitlab.com/avarabyeu/rpquiz/
+ENV WORKDIR=/go/src/github.com/avarabyeu/rpquiz/
 WORKDIR $WORKDIR
 
 
@@ -49,7 +49,7 @@ ENV PATH="/venv/bin:${PATH}"
 ENV PYTHONPATH="/nlp"
 
 ADD nlp/ /nlp/
-COPY --from=go-build /go/src/gitlab.com/avarabyeu/rpquiz/bin/rpquiz /usr/bin/rpquiz
+COPY --from=go-build /go/src/github.com/avarabyeu/rpquiz/bin/rpquiz /usr/bin/rpquiz
 
 ## Building python stuff
 ADD supervisor.ini /etc/supervisor.ini

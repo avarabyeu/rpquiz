@@ -3,8 +3,8 @@ package bot
 import (
 	"context"
 	"github.com/apex/log"
+	"github.com/avarabyeu/rpquiz/bot/nlp"
 	"github.com/pkg/errors"
-	"gitlab.com/avarabyeu/rpquiz/bot/nlp"
 	"sync"
 )
 

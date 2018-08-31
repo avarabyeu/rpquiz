@@ -9,7 +9,7 @@ services:
       dockerfile: Dockerfile
       context: ./
     volumes:
-    - ./:/go/src/gitlab.com/avarabyeu/rpquiz
+    - ./:/go/src/github.com/avarabyeu/rpquiz
 #    environment:
 #      INFO_ENABLED: "true"
 #      AUTH_ENABLED: "true"

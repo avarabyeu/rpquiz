@@ -17,7 +17,7 @@ RUN mkdir /fann && \
     cd /fann/FANN-2.2.0-Source && cmake . && make install
 RUN pip3 install --upgrade pip && pip3 install flask padatious
 
-ENV WORKDIR=/go/src/gitlab.com/avarabyeu/rpquiz/
+ENV WORKDIR=/go/src/github.com/avarabyeu/rpquiz/
 WORKDIR $WORKDIR
 
 

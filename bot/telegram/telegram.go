@@ -3,8 +3,8 @@ package telegram
 import (
 	"context"
 	"github.com/apex/log"
-	"gitlab.com/avarabyeu/rpquiz/bot/engine"
-	"gitlab.com/avarabyeu/rpquiz/bot/engine/ctx"
+	"github.com/avarabyeu/rpquiz/bot/engine"
+	"github.com/avarabyeu/rpquiz/bot/engine/ctx"
 	"gopkg.in/telegram-bot-api.v4"
 )
 

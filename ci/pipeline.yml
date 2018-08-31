@@ -15,7 +15,7 @@ resources:
 - name: rpquiz-docker-image
   type: docker-image
   source:
-    repository: registry.gitlab.com/avarabyeu/rpquiz
+    repository: quay.io/avarabyeu/rpquiz
     username: ((docker_login))
     password: ((docker_pass))
 
@@ -52,12 +52,14 @@ jobs:
     params:
       interpreter: /bin/sh
       script: |
-        echo "<docker_pass>" | docker login -u "<docker_login>" registry.gitlab.com --password-stdin
-        docker pull registry.gitlab.com/avarabyeu/rpquiz
+#        echo "<docker_pass>" | docker login -u "<docker_login>" quay.io/avarabyeu/rpquiz --password-stdin
+        docker pull quay.io/avarabyeu/rpquiz
         docker rm -f rpquiz || true
-        docker run -d -p 4200:4200 --restart=always --name rpquiz registry.gitlab.com/avarabyeu/rpquiz
+        docker run -d -p 4200:4200 --restart=always --name rpquiz -e TG_TOKEN="<docker_pass>" quay.io/avarabyeu/rpquiz
       placeholders:
       - name: "<docker_login>"
         value: ((repo_key))
-      - name: "<docker_pass>"
-        value: ((docker_pass))
+      - name: "<telegram_token>"
+        value: ((telegram_token))
+#      - name: "<docker_pass>"
+#        value: ((docker_pass))
