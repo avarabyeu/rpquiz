@@ -1,15 +1,6 @@
 ## This one is based on Debian
-FROM golang:1.11-alpine as go-build
+FROM quay.io/avarabyeu/golang-base as go-build
 
-RUN apk add --update --no-cache \
-    curl cmake wget unzip \
-    alpine-sdk \
-    ca-certificates \
-    tzdata
-
-RUN curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh && \
-    go get -v github.com/oxequa/realize github.com/alecthomas/gometalinter && \
-    gometalinter --install
 
 ENV WORKDIR=/go/src/github.com/avarabyeu/rpquiz/
 WORKDIR $WORKDIR
@@ -22,19 +13,8 @@ RUN dep ensure --vendor-only
 ADD ./bot/ ./bot/
 RUN make build
 
-FROM python:3.6-alpine
+FROM quay.io/avarabyeu/rpbot-base
 
-RUN apk add --update --no-cache \
-    supervisor cmake curl fann-dev wget unzip swig linux-headers \
-    alpine-sdk \
-    ca-certificates \
-    tzdata
-
-RUN mkdir /fann && \
-    wget -O /fann/fann.zip http://sourceforge.net/projects/fann/files/fann/2.2.0/FANN-2.2.0-Source.zip/download && \
-    unzip /fann/fann.zip -d /fann && \
-    cd /fann/FANN-2.2.0-Source && cmake . && make install
-#RUN pip3 install --upgrade pip && pip3 install flask padatious
 
 ADD nlp/requirements.txt /requirements.txt
 RUN python -m venv /venv \

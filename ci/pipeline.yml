@@ -16,17 +16,15 @@ resources:
     uri: https://github.com/avarabyeu/rpquiz.git
     branch: master
 
-- name: go-base
+- name: go-base-image
   type: docker-image
   source:
-    repository: golang
-    tag: 1.11-alpine
+    repository: quay.io/avarabyeu/golang-base
 
-- name: python-base
+- name: rpbot-base-image
   type: docker-image
   source:
-    repository: python
-    tag: 3.6-alpine
+    repository: quay.io/avarabyeu/rpbot-base
 
 
 - name: rpquiz-docker-image
@@ -44,20 +42,39 @@ resources:
     password: ((deploy_host_password))
 
 jobs:
+- name: build-base
+  plan:
+  - get: rpquiz-git
+    trigger: false
+  - put: go-base-image
+    get_params: { skip_download: true }
+    params:
+      params: {save: true}
+      build: rpquiz-git
+      dockerfile: rpquiz-git/ci/images/DockerfileGoBuilder
+  - put: rpbot-base-image
+    get_params: { skip_download: true }
+    params:
+      params: {save: true}
+      build: rpquiz-git
+      dockerfile: rpquiz-git/ci/images/DockerfilePythonBuilder
+
 - name: build
 #  public: true
 #  serial: true
   plan:
-  - get: go-base
+  - get: go-base-image
     params: {save: true}
-  - get: python-base
+    passed: [build-base]
+  - get: rpbot-base-image
     params: {save: true}
   - get: rpquiz-git
     trigger: true
+    passed: [build-base]
   - put: rpquiz-docker-image
     get_params: { skip_download: true }
     params:
-      load_bases: [go-base,python-base]
+      load_bases: [go-base-image,rpbot-base-image]
 #      cache: true
       params: {save: true}
       build: rpquiz-git

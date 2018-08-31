@@ -1,0 +1,12 @@
+## This one is based on Debian
+FROM golang:1.11-alpine as go-build
+
+RUN apk add --update --no-cache \
+    curl cmake wget unzip \
+    alpine-sdk \
+    ca-certificates \
+    tzdata
+
+RUN curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh && \
+    go get -v github.com/oxequa/realize github.com/alecthomas/gometalinter && \
+    gometalinter --install

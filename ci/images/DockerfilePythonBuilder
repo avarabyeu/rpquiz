@@ -1,0 +1,13 @@
+FROM python:3.6-alpine
+
+RUN apk add --update --no-cache \
+    supervisor cmake curl fann-dev wget unzip swig linux-headers \
+    alpine-sdk \
+    ca-certificates \
+    tzdata
+
+RUN mkdir /fann && \
+    wget -O /fann/fann.zip http://sourceforge.net/projects/fann/files/fann/2.2.0/FANN-2.2.0-Source.zip/download && \
+    unzip /fann/fann.zip -d /fann && \
+    cd /fann/FANN-2.2.0-Source && cmake . && make install
+#RUN pip3 install --upgrade pip && pip3 install flask padatious
