@@ -1,4 +1,4 @@
-package intents
+package db
 
 import (
 	"encoding/json"

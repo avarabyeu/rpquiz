@@ -28,32 +28,45 @@ func NewStartQuizHandler(repo db.SessionRepo, rp *rp.Reporter) bot.Handler {
 
 		log.Infof("Starting new quiz for %s", sessionID)
 		//handle start, first question
-		rpID, err := rp.StartLaunch(fmt.Sprintf("Quiz by %s", userName))
-		if err != nil {
-			return nil, err
-		}
+
 		questions, err := opentdb.NewClient().GetQuestions(questionsCount)
 		if err != nil {
 			return nil, err
 		}
 
-		q := askQuestion(questions[0])
-		testID, err := rp.StartTest(rpID, q.Text)
-		if nil != err {
-			return nil, err
-		}
-
-		err = repo.Save(sessionID, &QuizSession{
+		session := &db.QuizSession{
+			ID:        sessionID,
 			Questions: questions,
 			Results:   map[int]bool{},
-			LaunchID:  rpID,
-			TestID:    testID,
-		})
+		}
+		err = repo.Save(session)
 		if err != nil {
 			return nil, err
 		}
 
-		return bot.Respond(bot.NewResponse().WithText(fmt.Sprintf("Hi %s! We are starting new quiz!")), q), nil
+		q := askQuestion(questions[0])
+
+		rp.StartLaunch(fmt.Sprintf("Quiz by %s", userName), func(launchID string, e error) error {
+			err := repo.Update(&db.QuizSession{
+				ID:       sessionID,
+				LaunchID: launchID,
+			})
+			if err != nil {
+				return err
+			}
+
+			rp.StartTest(launchID, q.Text, func(testID string, e error) {
+				repo.Update(&db.QuizSession{
+					ID:     sessionID,
+					TestID: testID,
+				})
+
+			})
+			return nil
+
+		})
+
+		return bot.Respond(bot.NewResponse().WithText(fmt.Sprintf("Hi %s! We are starting new quiz!", userName)), q), nil
 	})
 }
 
@@ -78,9 +91,11 @@ func NewExitQuizHandler(repo db.SessionRepo, rp *rp.Reporter) bot.Handler {
 
 			//TODO finish active test (if any)
 
-			if err := rp.FinishLaunch(session.LaunchID); nil != err {
-				return nil, err
-			}
+			rp.FinishLaunch(session.LaunchID, func(err error) {
+				if nil != err {
+					log.WithError(err).Error("Cannot finish launch")
+				}
+			})
 
 		}
 		return bot.Respond(bot.NewResponse().WithText("Thanks for quizzing!")), nil
@@ -131,9 +146,12 @@ func (h *QuizIntentHandler) Handle(ctx context.Context, rq *bot.Request) ([]*bot
 		if err := h.repo.Delete(sessionID); nil != err {
 			return nil, err
 		}
-		if err := h.rp.FinishLaunch(session.LaunchID); nil != err {
-			return nil, err
-		}
+		h.rp.FinishLaunch(session.LaunchID, func(err error) {
+			if err != nil {
+				log.WithError(err).Error("Cannot finish launch")
+			}
+		})
+
 		return bot.Respond(bot.NewResponse().WithText(text), bot.NewResponse().
 			WithText(fmt.Sprintf("Thank you! You passed a quiz! Your score is %d", calculateScore(session))),
 			bot.NewResponse().
@@ -147,20 +165,25 @@ func (h *QuizIntentHandler) Handle(ctx context.Context, rq *bot.Request) ([]*bot
 	return bot.Respond(bot.NewResponse().WithText("hm..")), nil
 }
 
-func (h *QuizIntentHandler) handleNewQuestion(sessionID string, session *QuizSession, currQuestion int) ([]*bot.Response, error) {
+func (h *QuizIntentHandler) handleNewQuestion(sessionID string, session *db.QuizSession, currQuestion int) ([]*bot.Response, error) {
 	log.Debug("Handling question")
 
 	newQuestion := askQuestion(session.Questions[currQuestion+1])
 
-	testID, err := h.rp.StartTest(session.LaunchID, newQuestion.Text)
-	if nil != err {
-		return nil, err
-	}
-	session.TestID = testID
+	h.rp.StartTest(session.LaunchID, newQuestion.Text, func(testID string, err error) {
+		if nil != err {
+			return
+		}
 
-	if err := h.repo.Save(sessionID, session); nil != err {
-		return nil, err
-	}
+		if err := h.repo.Update(&db.QuizSession{
+			ID:     sessionID,
+			TestID: testID,
+		}); nil != err {
+			//return nil, err
+		}
+	})
+	//testID, err := h.rp.StartTest(session.LaunchID, newQuestion.Text)
+
 	//if previous question was answered
 	text := getAnswerText(session.Results[currQuestion])
 
@@ -168,7 +191,7 @@ func (h *QuizIntentHandler) handleNewQuestion(sessionID string, session *QuizSes
 	// handle question
 }
 
-func (h *QuizIntentHandler) handleAnswer(rq *bot.Request, session *QuizSession, currQuestion int) error {
+func (h *QuizIntentHandler) handleAnswer(rq *bot.Request, session *db.QuizSession, currQuestion int) error {
 	answer := rq.Raw
 	if nil == session.Results {
 		session.Results = map[int]bool{}
@@ -180,9 +203,19 @@ func (h *QuizIntentHandler) handleAnswer(rq *bot.Request, session *QuizSession, 
 
 	passed := strings.EqualFold(answer, correctAnswer)
 	session.Results[currQuestion] = passed
-	if err := h.rp.FinishTest(session.TestID, passed); nil != err {
-		return err
-	}
+	h.repo.Update(&db.QuizSession{
+		ID:      session.ID,
+		Results: session.Results,
+	})
+
+	h.rp.FinishTest(session.TestID, passed, func(err error) {
+		if err != nil {
+			log.WithError(err).Error("Cannot finish Test")
+		} else {
+			log.Debugf("Test %s has been finished", session.TestID)
+		}
+	})
+
 	return nil
 
 }
@@ -229,8 +262,8 @@ func getAnswerText(success bool) (text string) {
 	return
 }
 
-func loadSession(repo db.SessionRepo, id string) (*QuizSession, error) {
-	var session QuizSession
+func loadSession(repo db.SessionRepo, id string) (*db.QuizSession, error) {
+	var session db.QuizSession
 	err := repo.Load(id, &session)
 	if err != nil {
 		return nil, err
@@ -238,7 +271,7 @@ func loadSession(repo db.SessionRepo, id string) (*QuizSession, error) {
 	return &session, nil
 }
 
-func calculateScore(s *QuizSession) int {
+func calculateScore(s *db.QuizSession) int {
 	score := 0
 	for _, success := range s.Results {
 		if success {

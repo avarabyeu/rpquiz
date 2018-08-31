@@ -53,3 +53,7 @@
   name = "github.com/avarabyeu/gorp"
 #  version = "1.0.0"
   branch = "master"
+
+[[constraint]]
+  name = "github.com/asdine/storm"
+  version = "2.1.1"

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/apex/log"
 	"github.com/apex/log/handlers/cli"
+	"github.com/asdine/storm"
 	"github.com/avarabyeu/gorp/gorp"
 	"github.com/avarabyeu/rpquiz/bot/db"
 	"github.com/avarabyeu/rpquiz/bot/engine"
@@ -96,8 +97,9 @@ func newMux(lc fx.Lifecycle, cfg *conf) chi.Router {
 }
 
 func newSessionRepo(lc fx.Lifecycle, cfg *conf) (db.SessionRepo, error) {
-	bdb, err := bolt.Open(cfg.DbFile, 0600, nil)
+	bdb, err := storm.Open(cfg.DbFile, storm.BoltOptions(0600, &bolt.Options{}))
 	if err != nil {
+		log.WithError(err).Error("Cannot open DB")
 		return nil, err
 	}
 	lc.Append(fx.Hook{
@@ -106,7 +108,7 @@ func newSessionRepo(lc fx.Lifecycle, cfg *conf) (db.SessionRepo, error) {
 		},
 	})
 
-	return db.NewBoltSessionRepo(bdb)
+	return db.NewStormSessionRepo(bdb)
 }
 
 func newIntentDispatcher(nlp *nlp.IntentParser, repo db.SessionRepo, rp *rp.Reporter) *bot.Dispatcher {

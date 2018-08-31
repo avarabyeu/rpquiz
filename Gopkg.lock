@@ -13,6 +13,21 @@
   version = "v1.0.0"
 
 [[projects]]
+  digest = "1:9ede7940cd19ac5d92896381abac71954feb57608b617152e48112c3dc667e87"
+  name = "github.com/asdine/storm"
+  packages = [
+    ".",
+    "codec",
+    "codec/json",
+    "index",
+    "internal",
+    "q",
+  ]
+  pruneopts = "UT"
+  revision = "bda68dab90fc908ee5dbccb36400edf4f54972d6"
+  version = "v2.1.1"
+
+[[projects]]
   branch = "master"
   digest = "1:6a9c5857ba117c22abb1023221c450a76b913d8a06cf4008a5f0e2e661334157"
   name = "github.com/avarabyeu/gorp"
@@ -165,6 +180,7 @@
   input-imports = [
     "github.com/apex/log",
     "github.com/apex/log/handlers/cli",
+    "github.com/asdine/storm",
     "github.com/avarabyeu/gorp/gorp",
     "github.com/caarlos0/env",
     "github.com/coreos/bbolt",
