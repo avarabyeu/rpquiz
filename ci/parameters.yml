@@ -1,6 +1,11 @@
+image: "quay.io/avarabyeu/rpquiz"
+
 repo_key: ((repo_key))
-docker_login: avarabyeu
+docker_login: "avarabyeu"
 docker_pass: ((docker_pass))
 deploy_host: ((deploy_host))
 deploy_host_user: ((deploy_host_user))
 deploy_host_password: ((deploy_host_password))
+deploy_port: "4200"
+
+telegram_token: ((telegram_token))

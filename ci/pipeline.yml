@@ -1,3 +1,8 @@
+---
+meta:
+  image: "quay.io/avarabyeu/rpquiz"
+  port: "4200"
+
 resource_types:
 - name: ssh
   type: docker-image
@@ -8,9 +13,8 @@ resources:
 - name: rpquiz-git
   type: git
   source:
-    uri: git@gitlab.com:avarabyeu/rpquiz.git
+    uri: https://github.com/avarabyeu/rpquiz.git
     branch: master
-    private_key: ((repo_key))
 
 - name: rpquiz-docker-image
   type: docker-image
@@ -41,7 +45,6 @@ jobs:
       build: rpquiz-git
       dockerfile: rpquiz-git/DockerfileProd
 
-  # Second job: Retrieve application from S3 Bucket and Deploy to Docker Server
 - name: Deploy
   plan:
   - get: rpquiz-docker-image
@@ -53,13 +56,36 @@ jobs:
       interpreter: /bin/sh
       #        echo "<docker_pass>" | docker login -u "<docker_login>" quay.io/avarabyeu/rpquiz --password-stdin
       script: |
-        docker pull quay.io/avarabyeu/rpquiz
+        docker pull "<image>"
         docker rm -f rpquiz || true
-        docker run -d -p 4200:4200 --restart=always --name rpquiz -e TG_TOKEN="<docker_pass>" quay.io/avarabyeu/rpquiz
+        docker run -d -p "<deploy_port>":"<deploy_port>" --restart=always --name rpquiz -e TG_TOKEN="<telegram_token>" "<image>"
       placeholders:
-      - name: "<docker_login>"
-        value: ((repo_key))
       - name: "<telegram_token>"
         value: ((telegram_token))
-#      - name: "<docker_pass>"
-#        value: ((docker_pass))
+      - name: "<image>"
+        value:  ((image))
+      - name: "<deploy_port>"
+        value: ((deploy_port))
+
+- name: Test
+  plan:
+  - get: staging-server
+    trigger: true
+    passed: [Deploy]
+  - task: run_test
+    params:
+      DEPLOY_HOST: ((deploy_host)
+      DEPLOY_PORT: ((deploy_port)
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: willena/alpine-httpie-jq
+          tag: "latest"
+      run:
+        path: sh
+        args:
+        - -exc
+        - |
+          http http://${DEPLOY_HOST}:${DEPLOY_PORT}/health | jq -e '[.status == "ok"] | any' >/dev/null
