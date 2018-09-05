@@ -60,14 +60,14 @@ jobs:
     get_params: { skip_download: true }
     params:
       params: {save: true}
-      build: rpquiz-git
-      dockerfile: rpquiz-git/ci/images/DockerfileGoBuilder
+      build: rpquiz-git-dockerfiles
+      dockerfile: rpquiz-git-dockerfiles/ci/images/DockerfileGoBuilder
   - put: rpbot-base-image
     get_params: { skip_download: true }
     params:
       params: {save: true}
-      build: rpquiz-git
-      dockerfile: rpquiz-git/ci/images/DockerfilePythonBuilder
+      build: rpquiz-git-dockerfiles
+      dockerfile: rpquiz-git-dockerfiles/ci/images/DockerfilePythonBuilder
 
 - name: build
 #  public: true
@@ -121,9 +121,6 @@ jobs:
     trigger: true
     passed: [Deploy]
   - task: run_test
-    params:
-      DEPLOY_HOST: ((deploy_host)
-      DEPLOY_PORT: ((deploy_port)
     config:
       platform: linux
       image_resource:
@@ -137,3 +134,6 @@ jobs:
         - -exc
         - |
           http http://${DEPLOY_HOST}:${DEPLOY_PORT}/health | jq -e '[.status == "ok"] | any' >/dev/null
+      params:
+        DEPLOY_HOST: ((deploy_host))
+        DEPLOY_PORT: ((deploy_port))
