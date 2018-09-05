@@ -99,10 +99,10 @@ func NewExitQuizHandler(repo db.SessionRepo, rp *rp.Reporter) bot.Handler {
 			if err := quiteSessionGracefully(repo, rp, session); nil != err {
 				return nil, err
 			}
+			return bot.Respond(bot.NewResponse().WithText("Thanks for quizzing!")), nil
 
 		}
-		return bot.Respond(bot.NewResponse().WithText("Thanks for quizzing!")), nil
-
+		return []*bot.Response{}, nil
 	})
 }
 
