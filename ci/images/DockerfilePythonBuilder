@@ -7,7 +7,7 @@ RUN apk add --update --no-cache \
     tzdata
 
 RUN mkdir /fann && \
-    wget -O /fann/fann.zip http://sourceforge.net/projects/fann/files/fann/2.2.0/FANN-2.2.0-Source.zip/download && \
+    wget --no-check-certificate -O /fann/fann.zip http://sourceforge.net/projects/fann/files/fann/2.2.0/FANN-2.2.0-Source.zip/download && \
     unzip /fann/fann.zip -d /fann && \
     cd /fann/FANN-2.2.0-Source && cmake . && make install
 #RUN pip3 install --upgrade pip && pip3 install flask padatious
