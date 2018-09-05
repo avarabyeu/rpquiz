@@ -89,9 +89,7 @@ func NewExitQuizHandler(repo db.SessionRepo, rp *rp.Reporter) bot.Handler {
 				return nil, err
 			}
 
-			//TODO finish active test (if any)
-
-			rp.FinishLaunch(session.LaunchID, func(err error) {
+			rp.FinishLaunch(session.LaunchID, false, func(err error) {
 				if nil != err {
 					log.WithError(err).Error("Cannot finish launch")
 				}
@@ -146,7 +144,7 @@ func (h *QuizIntentHandler) Handle(ctx context.Context, rq *bot.Request) ([]*bot
 		if err := h.repo.Delete(sessionID); nil != err {
 			return nil, err
 		}
-		h.rp.FinishLaunch(session.LaunchID, func(err error) {
+		h.rp.FinishLaunch(session.LaunchID, true, func(err error) {
 			if err != nil {
 				log.WithError(err).Error("Cannot finish launch")
 			}

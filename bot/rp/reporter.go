@@ -86,23 +86,38 @@ func (r *Reporter) StartLaunch(name string, callback func(string, error) error) 
 }
 
 //FinishLaunch finishes launch in ReportPortal
-func (r *Reporter) FinishLaunch(rpID string, callback func(error)) {
+func (r *Reporter) FinishLaunch(rpID string, needRetry bool, callback func(error)) {
 	go func() {
 		//due to RP constant that all child items should be finished,
 		//we use retry here.
 		//since reporting is implemented in async fashion, not all items
 		//may be finished at the time when launch finish is triggered
-		_, err := retry(5, 3*time.Second, func() (interface{}, error) {
-			return r.rp.FinishLaunch(rpID, &gorp.FinishExecutionRQ{
-				EndTime: gorp.Timestamp{
-					Time: time.Now(),
-				},
-				//Status: "PASSED",
+
+		var err error
+		if needRetry {
+			_, err = retry(5, 3*time.Second, func() (interface{}, error) {
+				return r.finishLaunchInternally(rpID)
 			})
-		})
+		} else {
+			_, err = r.finishLaunchInternally(rpID)
+		}
+
+		if nil != err {
+			log.Warnf("Cannot finish launch %s. Forcing stop...", rpID)
+			_, err = r.rp.StopLaunch(rpID)
+		}
 		callback(err)
 	}()
 
+}
+
+func (r *Reporter) finishLaunchInternally(rpID string) (interface{}, error) {
+	return r.rp.FinishLaunch(rpID, &gorp.FinishExecutionRQ{
+		EndTime: gorp.Timestamp{
+			Time: time.Now(),
+		},
+		//Status: "PASSED",
+	})
 }
 
 //retry executes callback func until it executes successfully

@@ -34,4 +34,4 @@ ENV VOCAB_DIR=${WORKDIR}/nlp/vocab/en-us
 ## Building python stuff
 ADD supervisor-dev.ini /etc/supervisor-dev.ini
 
-ENTRYPOINT ["/usr/bin/supervisord", "--nodaemon", "--configuration", "/etc/supervisor-dev.ini"]
+CMD ["/usr/bin/supervisord", "--nodaemon", "--configuration", "/etc/supervisor-dev.ini"]
