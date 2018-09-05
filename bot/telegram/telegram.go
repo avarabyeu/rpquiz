@@ -41,6 +41,7 @@ func (b *Bot) Start() error {
 			var tMessage *tgbotapi.Message
 			var user string
 			var userID string
+
 			if update.Message != nil {
 				message = update.Message.Text
 				tMessage = update.Message

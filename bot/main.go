@@ -55,12 +55,7 @@ func main() {
 		fx.Invoke(initLogger, register),
 	)
 
-	ctx := context.Background()
-	if err := app.Start(ctx); err != nil {
-		log.WithError(err).Fatal("Cannot start application")
-	}
-	<-app.Done()
-
+	app.Run()
 }
 
 func newConf() (*conf, error) {

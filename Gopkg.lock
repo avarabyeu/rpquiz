@@ -29,11 +29,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:6a9c5857ba117c22abb1023221c450a76b913d8a06cf4008a5f0e2e661334157"
+  digest = "1:8aef9dadbe50e34720ea5ebd83547cac5745aeb0e3baa0307c90a1aacdddcd5d"
   name = "github.com/avarabyeu/gorp"
   packages = ["gorp"]
   pruneopts = "UT"
-  revision = "2acc9d2777013e515d32e85403a20e20d22319ad"
+  revision = "5740a87a3d9349ec4dc11d0d53b7f0927d9b88dd"
 
 [[projects]]
   digest = "1:e361cb646a33874cf6521b5c4e77c9208b4b58c7fd3893b8c87f61f49b19d991"
@@ -129,11 +129,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:19f92ce03256cc8a4467054842ec81f081985becd92bbc443e7604dfe801e6a8"
+  digest = "1:a9e9a5da9c877870b0feb5975c1e30dddb236562f912e9e9b0515ac9465f951b"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = "UT"
-  revision = "4910a1d54f876d7b22162a85f4d066d3ee649450"
+  revision = "ebe1bf3edb3325c393447059974de898d5133eb8"
 
 [[projects]]
   digest = "1:a2ab62866c75542dd18d2b069fec854577a20211d7c0ea6ae746072a1dccdd18"
@@ -159,12 +159,12 @@
   version = "v0.3.0"
 
 [[projects]]
-  digest = "1:4a4785749b54b948fd45be3824c6bb1d606578a440657f7cabc79dbbbdc7c476"
+  digest = "1:b7fc4c3fd91df516486f53cc86f4b55a0c815782dbe852c5a19cce8e6c577aac"
   name = "gopkg.in/resty.v1"
   packages = ["."]
   pruneopts = "UT"
-  revision = "383acc8a8b687098ee02168c0335a43dfee701f0"
-  version = "v1.9.0"
+  revision = "d4920dcf5b7689548a6db640278a9b35a5b48ec6"
+  version = "v1.9.1"
 
 [[projects]]
   digest = "1:6999e4e34bb73184674e844d6d1e6f48f75a30a9c86ef7663dbc7b2509962812"
