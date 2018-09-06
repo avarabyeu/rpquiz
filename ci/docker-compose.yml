@@ -20,13 +20,16 @@ services:
     - POSTGRES_PASSWORD=concourse_pass
     - POSTGRES_USER=concourse_user
     - PGDATA=/database
+    volumes: ["/opt/concourse/db:/database"]
 
-  concourse:
+
+  concourse-web:
     image: concourse/concourse
-    command: quickstart
-    privileged: true
+    command: web
+    links: [concourse-db]
     depends_on: [concourse-db]
     ports: ["8080:8080"]
+    volumes: ["/opt/concourse/keys/web:/concourse-keys"]
     environment:
     - CONCOURSE_POSTGRES_HOST=concourse-db
     - CONCOURSE_POSTGRES_USER=concourse_user
@@ -35,10 +38,20 @@ services:
     - CONCOURSE_EXTERNAL_URL=http://ECSC00A01760.epam.com:8080
     - CONCOURSE_ADD_LOCAL_USER=test:$$2a$$10$$0W9/ilCpYXY/yCPpaOD.6eCrGda/fnH3D4lhsw1Mze0WTID5BuiTW
     - CONCOURSE_MAIN_TEAM_ALLOW_ALL_USERS=true
-    - CONCOURSE_WORKER_GARDEN_NETWORK
     - CONCOURSE_VAULT_URL=http://vault:8200
     - CONCOURSE_VAULT_TLS_INSECURE_SKIP_VERIFY=true
     #    - CONCOURSE_VAULT_AUTH_BACKEND=approle
     - CONCOURSE_VAULT_PATH_PREFIX=/concourse
     - CONCOURSE_VAULT_CLIENT_TOKEN=0c14d43a-3fda-157b-44b8-af097d5a40f0
+
+  concourse-worker:
+    image: concourse/concourse
+    command: worker
+    privileged: true
+    links: [concourse-web]
+    depends_on: [concourse-web]
+    volumes: ["/opt/concourse/keys/worker:/concourse-keys"]
+    environment:
+    - CONCOURSE_TSA_HOST=concourse-web:2222
+    - CONCOURSE_GARDEN_NETWORK
     - CONCOURSE_BAGGAGECLAIM_DRIVER=btrfs

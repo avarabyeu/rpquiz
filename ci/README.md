@@ -41,6 +41,18 @@ vault token-create --policy=policy-concourse -period="600h" -format=json
 
 
 #### 7. Deploy concourse
+
+Download key generation script 
+```sh
+wget https://raw.githubusercontent.com/concourse/concourse-docker/master/generate-keys.sh
+```
+
+Run it
+```sh
+./generate-keys.sh
+```
+
+
 ```sh
 docker-compose up -d concourse
 ```
