@@ -9,6 +9,7 @@ import (
 	"github.com/avarabyeu/gorp/gorp"
 	"github.com/avarabyeu/rpquiz/bot/db"
 	"github.com/avarabyeu/rpquiz/bot/engine"
+	"github.com/avarabyeu/rpquiz/bot/engine/ctx"
 	"github.com/avarabyeu/rpquiz/bot/intents"
 	"github.com/avarabyeu/rpquiz/bot/nlp"
 	"github.com/avarabyeu/rpquiz/bot/rp"
@@ -118,14 +119,19 @@ func newIntentDispatcher(nlp *nlp.IntentParser, repo db.SessionRepo, rp *rp.Repo
 			return bot.Respond(bot.NewResponse().WithText(fmt.Sprintf("Sorry, error has occured: %s", err)))
 		}),
 	}
-	//d.Use(func(next bot.Handler) bot.Handler {
-	//	return bot.NewHandlerFunc(func(ctx context.Context, rq *bot.Request) (*bot.Response, error) {
-	//		if upd, ok := botctx.GetOriginalMessage(ctx).(*tgbotapi.Message); ok {
-	//			return next.Handle(botctx.WithUser(ctx, upd.From.UserName), rq)
-	//		}
-	//		return next.Handle(ctx, rq)
-	//	})
-	//})
+	d.Use(func(next bot.Handler) bot.Handler {
+		return bot.NewHandlerFunc(func(ctx context.Context, rq bot.Request) ([]*bot.Response, error) {
+			sessionID := botctx.GetUserID(ctx)
+			if "" == sessionID {
+				return nil, errors.Errorf("User ID isn't recognized")
+			}
+			session, err := loadSession(repo, sessionID)
+			if nil == err && nil != session {
+				ctx = botctx.WithSession(ctx, session)
+			}
+			return next.Handle(ctx, rq)
+		})
+	})
 
 	return d
 }
@@ -178,4 +184,13 @@ func logErr(err error) {
 // stackTracer interface.
 type stackTracer interface {
 	StackTrace() errors.StackTrace
+}
+
+func loadSession(repo db.SessionRepo, id string) (*db.QuizSession, error) {
+	var session db.QuizSession
+	err := repo.Load(id, &session)
+	if err != nil {
+		return nil, err
+	}
+	return &session, nil
 }

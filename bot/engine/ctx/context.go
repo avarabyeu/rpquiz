@@ -1,6 +1,9 @@
 package botctx
 
-import "context"
+import (
+	"context"
+	"github.com/avarabyeu/rpquiz/bot/db"
+)
 
 type contextKey string
 
@@ -50,11 +53,16 @@ func GetOriginalMessage(ctx context.Context) interface{} {
 }
 
 //WithSession adds original message to the context
-func WithSession(ctx context.Context, s interface{}) context.Context {
+func WithSession(ctx context.Context, s *db.QuizSession) context.Context {
 	return context.WithValue(ctx, session, s)
 }
 
 //GetSession takes original message from the context
-func GetSession(ctx context.Context) interface{} {
-	return ctx.Value(session)
+func GetSession(ctx context.Context) (*db.QuizSession, bool) {
+	if val := ctx.Value(session); nil != val {
+		s, ok := val.(*db.QuizSession)
+		return s, ok
+	}
+	return nil, false
+
 }

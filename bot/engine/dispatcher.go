@@ -11,7 +11,7 @@ import (
 type (
 	//Handler handles some particular user intent
 	Handler interface {
-		Handle(ctx context.Context, rq *Request) ([]*Response, error)
+		Handle(ctx context.Context, rq Request) ([]*Response, error)
 	}
 	//ErrorHandler converts error to human-readable response
 	ErrorHandler interface {
@@ -34,12 +34,21 @@ type (
 		NLP        *nlp.IntentParser
 	}
 
-	//Request is parsed user question representation
-	Request struct {
+	Request interface {
+		GetRaw() string
+	}
+
+	//IntentRequest is parsed user question representation
+	IntentRequest struct {
 		Intent     string
 		Raw        string
 		Params     map[string]string
 		Confidence float64
+	}
+
+	//CallbackRequest contains callback/answer to some question
+	CallbackRequest struct {
+		Raw string
 	}
 
 	//Response is platform-agnostic answer representation
@@ -58,7 +67,7 @@ type (
 	// ordinary functions as intent handlers.  If f is a function
 	// with the appropriate signature, HandlerFunc(f) is a
 	// Handler object that calls f.
-	HandlerFunc func(ctx context.Context, rq *Request) ([]*Response, error)
+	HandlerFunc func(ctx context.Context, rq Request) ([]*Response, error)
 
 	//ErrorHandlerFunc type is an adapter to allow the use of
 	// ordinary functions as intent error handlers.
@@ -66,7 +75,7 @@ type (
 )
 
 // Handle calls f(w, r).
-func (f HandlerFunc) Handle(ctx context.Context, rq *Request) ([]*Response, error) {
+func (f HandlerFunc) Handle(ctx context.Context, rq Request) ([]*Response, error) {
 	return f(ctx, rq)
 }
 
@@ -76,12 +85,12 @@ func (f ErrorHandlerFunc) Handle(ctx context.Context, err error) []*Response {
 }
 
 //NewHandlerFunc factory method to have better autocomplete while creating HandlerFunc
-func NewHandlerFunc(f func(ctx context.Context, rq *Request) ([]*Response, error)) HandlerFunc {
+func NewHandlerFunc(f func(ctx context.Context, rq Request) ([]*Response, error)) HandlerFunc {
 	return f
 }
 
 //DispatchRQ dispatches parsed user question to appropriate handler
-func (d *Dispatcher) DispatchRQ(ctx context.Context, rq *Request) (rs []*Response) {
+func (d *Dispatcher) DispatchRQ(ctx context.Context, rq Request) (rs []*Response) {
 	d.init()
 
 	defer func() {
@@ -110,10 +119,14 @@ func (d *Dispatcher) Use(m func(Handler) Handler) *Dispatcher {
 }
 
 //Dispatch parses user question and then dispatches to appropriate handler
-func (d *Dispatcher) Dispatch(ctx context.Context, msg string) (rs []*Response) {
+func (d *Dispatcher) Dispatch(ctx context.Context, msg string, callback bool) (rs []*Response) {
+	if callback {
+		return d.DispatchRQ(ctx, &CallbackRequest{Raw: msg})
+	}
+
 	intent := d.NLP.Parse(msg)
 
-	rq := &Request{
+	rq := &IntentRequest{
 		Intent:     intent.Name,
 		Params:     intent.Matches,
 		Raw:        msg,
@@ -149,6 +162,16 @@ func chain(middlewares []Middleware, endpoint Handler) Handler {
 	}
 
 	return h
+}
+
+//GetRaw takes raw user message
+func (rq *IntentRequest) GetRaw() string {
+	return rq.Raw
+}
+
+//GetRaw takes raw user message
+func (rq *CallbackRequest) GetRaw() string {
+	return rq.Raw
 }
 
 //NewResponse creates new instance of bot response

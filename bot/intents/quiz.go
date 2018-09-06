@@ -19,14 +19,14 @@ const questionsCount = 5
 
 //NewStartQuizHandler creates new start intent handler - greeting and first question
 func NewStartQuizHandler(repo db.SessionRepo, rp *rp.Reporter) bot.Handler {
-	return bot.NewHandlerFunc(func(ctx context.Context, rq *bot.Request) ([]*bot.Response, error) {
-		sessionID := botctx.GetUserID(ctx)
-		if "" == sessionID {
+	return bot.NewHandlerFunc(func(ctx context.Context, rq bot.Request) ([]*bot.Response, error) {
+		userID := botctx.GetUserID(ctx)
+		if "" == userID {
 			return nil, errors.Errorf("User ID isn't recognized")
 		}
 
 		//if old session is still started, quit it gracefully.
-		if oldSession, err := loadSession(repo, sessionID); err == nil && "" != oldSession.LaunchID {
+		if oldSession, ok := botctx.GetSession(ctx); ok && "" != oldSession.LaunchID {
 			if err := quiteSessionGracefully(repo, rp, oldSession); nil != err {
 				return nil, err
 			}
@@ -34,7 +34,7 @@ func NewStartQuizHandler(repo db.SessionRepo, rp *rp.Reporter) bot.Handler {
 
 		userName := botctx.GetUserName(ctx)
 
-		log.Infof("Starting new quiz for %s", sessionID)
+		log.Infof("Starting new quiz for %s", userID)
 		//handle start, first question
 
 		questions, err := opentdb.NewClient().GetQuestions(questionsCount)
@@ -43,7 +43,7 @@ func NewStartQuizHandler(repo db.SessionRepo, rp *rp.Reporter) bot.Handler {
 		}
 
 		session := &db.QuizSession{
-			ID:        sessionID,
+			ID:        userID,
 			Questions: questions,
 			Results:   map[int]bool{},
 		}
@@ -63,7 +63,7 @@ func NewStartQuizHandler(repo db.SessionRepo, rp *rp.Reporter) bot.Handler {
 			//start test in RP
 			rp.StartTest(launchID, sID, q.Text, func(testID string, e error) {
 				repo.Update(&db.QuizSession{
-					ID:       sessionID,
+					ID:       userID,
 					TestID:   testID,
 					SuiteID:  sID,
 					LaunchID: launchID,
@@ -83,17 +83,12 @@ func NewStartQuizHandler(repo db.SessionRepo, rp *rp.Reporter) bot.Handler {
 
 //NewExitQuizHandler creates new intent handler that processes quit from quiz
 func NewExitQuizHandler(repo db.SessionRepo, rp *rp.Reporter) bot.Handler {
-	return bot.NewHandlerFunc(func(ctx context.Context, rq *bot.Request) ([]*bot.Response, error) {
-		sessionID := botctx.GetUserID(ctx)
-		if "" == sessionID {
-			return nil, errors.Errorf("User ID isn't recognized")
-		}
+	return bot.NewHandlerFunc(func(ctx context.Context, rq bot.Request) ([]*bot.Response, error) {
+		if irq, ok := rq.(*bot.IntentRequest); ok && irq.Confidence >= 0.8 {
 
-		if rq.Confidence >= 0.8 {
-
-			session, err := loadSession(repo, sessionID)
-			if err != nil {
-				return nil, err
+			session, ok := botctx.GetSession(ctx)
+			if !ok {
+				return nil, errors.Errorf("Quiz for user %s not found", botctx.GetUserName(ctx))
 			}
 
 			if err := quiteSessionGracefully(repo, rp, session); nil != err {
@@ -118,15 +113,11 @@ func NewQuizIntentHandler(repo db.SessionRepo, rp *rp.Reporter) *QuizIntentHandl
 }
 
 //Handle handles answer to a question
-func (h *QuizIntentHandler) Handle(ctx context.Context, rq *bot.Request) ([]*bot.Response, error) {
-	sessionID := botctx.GetUserID(ctx)
-	if "" == sessionID {
-		return nil, errors.Errorf("User ID isn't recognized")
-	}
+func (h *QuizIntentHandler) Handle(ctx context.Context, rq bot.Request) ([]*bot.Response, error) {
 
-	session, err := loadSession(h.repo, sessionID)
-	if nil != err || nil == session {
-		return nil, errors.Errorf("session for user %s not found", sessionID)
+	session, ok := botctx.GetSession(ctx)
+	if !ok {
+		return nil, errors.Errorf("Quiz for user %s isn't started", botctx.GetUserName(ctx))
 	}
 
 	if currQuestion := len(session.Results); currQuestion >= 0 {
@@ -139,7 +130,7 @@ func (h *QuizIntentHandler) Handle(ctx context.Context, rq *bot.Request) ([]*bot
 
 		// not a last question. Ask next one
 		if currQuestion < len(session.Questions)-1 {
-			return h.handleNewQuestion(sessionID, session, currQuestion)
+			return h.handleNewQuestion(session, currQuestion)
 		}
 
 		//if previous question was answered
@@ -147,7 +138,7 @@ func (h *QuizIntentHandler) Handle(ctx context.Context, rq *bot.Request) ([]*bot
 
 		// handle last question. close session
 		log.Debug("Handling last question")
-		if err := h.repo.Delete(sessionID); nil != err {
+		if err := h.repo.Delete(session.ID); nil != err {
 			return nil, err
 		}
 		h.rp.FinishLaunch(session.LaunchID, session.SuiteID, true, func(err error) {
@@ -169,7 +160,7 @@ func (h *QuizIntentHandler) Handle(ctx context.Context, rq *bot.Request) ([]*bot
 	return bot.Respond(bot.NewResponse().WithText("hm..")), nil
 }
 
-func (h *QuizIntentHandler) handleNewQuestion(sessionID string, session *db.QuizSession, currQuestion int) ([]*bot.Response, error) {
+func (h *QuizIntentHandler) handleNewQuestion(session *db.QuizSession, currQuestion int) ([]*bot.Response, error) {
 	log.Debug("Handling question")
 
 	newQuestion := askQuestion(session.Questions[currQuestion+1])
@@ -181,7 +172,7 @@ func (h *QuizIntentHandler) handleNewQuestion(sessionID string, session *db.Quiz
 		}
 
 		if err := h.repo.Update(&db.QuizSession{
-			ID:      sessionID,
+			ID:      session.ID,
 			SuiteID: session.SuiteID,
 			TestID:  testID,
 		}); nil != err {
@@ -198,8 +189,8 @@ func (h *QuizIntentHandler) handleNewQuestion(sessionID string, session *db.Quiz
 	// handle question
 }
 
-func (h *QuizIntentHandler) handleAnswer(rq *bot.Request, session *db.QuizSession, currQuestion int) error {
-	answer := rq.Raw
+func (h *QuizIntentHandler) handleAnswer(rq bot.Request, session *db.QuizSession, currQuestion int) error {
+	answer := rq.GetRaw()
 	if nil == session.Results {
 		session.Results = map[int]bool{}
 	}
@@ -281,15 +272,6 @@ func getAnswerText(success bool) (text string) {
 		text = "Wrong answer!\n"
 	}
 	return
-}
-
-func loadSession(repo db.SessionRepo, id string) (*db.QuizSession, error) {
-	var session db.QuizSession
-	err := repo.Load(id, &session)
-	if err != nil {
-		return nil, err
-	}
-	return &session, nil
 }
 
 func calculateScore(s *db.QuizSession) int {

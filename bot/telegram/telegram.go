@@ -42,6 +42,8 @@ func (b *Bot) Start() error {
 			var user string
 			var userID string
 
+			callback := false
+
 			if update.Message != nil {
 				message = update.Message.Text
 				tMessage = update.Message
@@ -52,6 +54,7 @@ func (b *Bot) Start() error {
 				tMessage = update.CallbackQuery.Message
 				user = update.CallbackQuery.From.UserName
 				userID = strconv.Itoa(update.CallbackQuery.From.ID)
+				callback = true
 			} else {
 				continue
 			}
@@ -67,7 +70,7 @@ func (b *Bot) Start() error {
 				ctx = botctx.WithUserID(ctx, userID)
 				ctx, cancel := context.WithCancel(ctx)
 				defer cancel()
-				rss := b.Dispatcher.Dispatch(ctx, message)
+				rss := b.Dispatcher.Dispatch(ctx, message, callback)
 				reply(tBot, update, rss)
 			}(tMessage)
 
