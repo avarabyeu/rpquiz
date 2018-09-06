@@ -78,6 +78,7 @@ jobs:
     passed: [build-base]
   - get: rpbot-base-image
     params: {save: true}
+    passed: [build-base]
   - get: rpquiz-git
     trigger: true
   - put: rpquiz-docker-image
