@@ -113,7 +113,9 @@ func newIntentDispatcher(nlp *nlp.IntentParser, repo db.SessionRepo, rp *rp.Repo
 		Handler: bot.IntentNameDispatcher(map[string]bot.Handler{
 			"exit.intent":  intents.NewExitQuizHandler(repo, rp),
 			"start.intent": intents.NewStartQuizHandler(repo, rp),
-		}, intents.NewQuizIntentHandler(repo, rp)),
+		}, intents.NewQuizIntentHandler(repo, rp), bot.NewHandlerFunc(func(ctx context.Context, rq bot.Request) ([]*bot.Response, error) {
+			return bot.Respond(bot.NewResponse().WithText("What...??? I don't know how to handle that!")), nil
+		})),
 		ErrHandler: bot.ErrorHandlerFunc(func(ctx context.Context, err error) []*bot.Response {
 			logErr(err)
 			return bot.Respond(bot.NewResponse().WithText(fmt.Sprintf("Sorry, error has occured: %s", err)))

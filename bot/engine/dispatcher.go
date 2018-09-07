@@ -101,6 +101,7 @@ func (d *Dispatcher) DispatchRQ(ctx context.Context, rq Request) (rs []*Response
 		}
 	}()
 
+	log.Debugf("Handling user request: %s", rq)
 	var err error
 	rs, err = d.Handler.Handle(ctx, rq)
 	if nil != err {
