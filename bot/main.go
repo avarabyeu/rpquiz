@@ -26,10 +26,11 @@ import (
 
 type (
 	conf struct {
-		Port      int    `env:"PORT" envDefault:"4200"`
-		RpUUID    string `env:"RP_UUID,required"`
-		RpProject string `env:"RP_PROJECT,required"`
-		RpHost    string `env:"RP_HOST" envDefault:"https://rp.epam.com"`
+		LoggingLevel string `env:"LOGGING_LEVEL" envDefault:"info"`
+		Port         int    `env:"PORT" envDefault:"4200"`
+		RpUUID       string `env:"RP_UUID,required"`
+		RpProject    string `env:"RP_PROJECT,required"`
+		RpHost       string `env:"RP_HOST" envDefault:"https://rp.epam.com"`
 
 		//DB settings
 		DbFile string `env:"DB_FILE" envDefault:"qabot.db"`
@@ -65,9 +66,14 @@ func newConf() (*conf, error) {
 	return &cfg, err
 }
 
-func initLogger() {
+func initLogger(c *conf) error {
+	level, err := log.ParseLevel(c.LoggingLevel)
+	if err != nil {
+		return err
+	}
 	log.SetHandler(cli.New(os.Stdout))
-	log.SetLevel(log.DebugLevel)
+	log.SetLevel(level)
+	return nil
 }
 
 func newMux(lc fx.Lifecycle, cfg *conf) chi.Router {

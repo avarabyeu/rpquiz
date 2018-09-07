@@ -35,7 +35,7 @@ func NewStartQuizHandler(repo db.SessionRepo, rp *rp.Reporter) bot.Handler {
 
 		userName := botctx.GetUserName(ctx)
 
-		log.Infof("Starting new quiz for %s", userID)
+		log.Infof("Starting new quiz for %s[%s]", userName, userID)
 		//handle start, first question
 
 		questions, err := openTdbClient.GetQuestions(questionsCount)
