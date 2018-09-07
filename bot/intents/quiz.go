@@ -127,18 +127,21 @@ func (h *QuizIntentHandler) Handle(ctx context.Context, rq bot.Request) ([]*bot.
 	if currQuestion := len(session.Results); currQuestion >= 0 {
 
 		//handle answer to the previous question
-		if err := h.handleAnswer(rq, session, currQuestion); nil != err {
+		var text string
+		var err error
+		if text, err = h.handleAnswer(rq, session, currQuestion); nil != err {
 			log.WithError(err).Error("Answer handling error")
 			return nil, errors.WithStack(err)
 		}
 
 		// not a last question. Ask next one
 		if currQuestion < len(session.Questions)-1 {
-			return h.handleNewQuestion(session, currQuestion)
+			newQuestion, err := h.handleNewQuestion(session, currQuestion)
+			if nil != err {
+				return nil, err
+			}
+			return bot.Respond(bot.NewResponse().WithText(text), newQuestion), nil
 		}
-
-		//if previous question was answered
-		text := getAnswerText(session.Results[currQuestion])
 
 		// handle last question. close session
 		log.Debug("Handling last question")
@@ -164,7 +167,7 @@ func (h *QuizIntentHandler) Handle(ctx context.Context, rq bot.Request) ([]*bot.
 	return bot.Respond(bot.NewResponse().WithText("hm..")), nil
 }
 
-func (h *QuizIntentHandler) handleNewQuestion(session *db.QuizSession, currQuestion int) ([]*bot.Response, error) {
+func (h *QuizIntentHandler) handleNewQuestion(session *db.QuizSession, currQuestion int) (*bot.Response, error) {
 	log.Debug("Handling question")
 
 	newQuestion := askQuestion(session.Questions[currQuestion+1])
@@ -181,26 +184,21 @@ func (h *QuizIntentHandler) handleNewQuestion(session *db.QuizSession, currQuest
 			TestID:  testID,
 		}); nil != err {
 			log.WithError(err).Error("Cannot update session in DB")
-			//return nil, err
 		}
 	})
 	//testID, err := h.rp.StartTest(session.LaunchID, newQuestion.Text)
 
-	//if previous question was answered
-	text := getAnswerText(session.Results[currQuestion])
-
-	return bot.Respond(bot.NewResponse().WithText(text), newQuestion), nil
-	// handle question
+	return newQuestion, nil
 }
 
-func (h *QuizIntentHandler) handleAnswer(rq bot.Request, session *db.QuizSession, currQuestion int) error {
+func (h *QuizIntentHandler) handleAnswer(rq bot.Request, session *db.QuizSession, currQuestion int) (string, error) {
 	answer := rq.GetRaw()
 	if nil == session.Results {
 		session.Results = map[int]bool{}
 	}
 	correctAnswer, err := url.PathUnescape(session.Questions[currQuestion].CorrectAnswer)
 	if nil != err {
-		return err
+		return "", err
 	}
 
 	passed := strings.EqualFold(answer, correctAnswer)
@@ -219,7 +217,7 @@ func (h *QuizIntentHandler) handleAnswer(rq bot.Request, session *db.QuizSession
 		}
 	})
 
-	return nil
+	return getAnswerText(passed, correctAnswer), nil
 
 }
 
@@ -269,12 +267,18 @@ func quiteSessionGracefully(repo db.SessionRepo, rp *rp.Reporter, session *db.Qu
 	return nil
 }
 
-func getAnswerText(success bool) (text string) {
-	if success {
+func getAnswerText(passed bool, correctAnswer string) (text string) {
+
+	if passed {
 		text = "That's correct!\n"
 	} else {
-		text = "Wrong answer!\n"
+		text = "Wrong answer! "
 	}
+
+	if !passed {
+		text = fmt.Sprintf("%sCorrect answer is '%s'", text, correctAnswer)
+	}
+
 	return
 }
 
