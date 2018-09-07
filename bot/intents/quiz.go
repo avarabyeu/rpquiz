@@ -271,7 +271,7 @@ func quiteSessionGracefully(repo db.SessionRepo, rp *rp.Reporter, session *db.Qu
 
 func getAnswerText(success bool) (text string) {
 	if success {
-		text = "That'a correct!\n"
+		text = "That's correct!\n"
 	} else {
 		text = "Wrong answer!\n"
 	}
