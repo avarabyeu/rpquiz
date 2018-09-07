@@ -19,6 +19,7 @@ const questionsCount = 5
 
 //NewStartQuizHandler creates new start intent handler - greeting and first question
 func NewStartQuizHandler(repo db.SessionRepo, rp *rp.Reporter) bot.Handler {
+	openTdbClient := opentdb.NewClient()
 	return bot.NewHandlerFunc(func(ctx context.Context, rq bot.Request) ([]*bot.Response, error) {
 		userID := botctx.GetUserID(ctx)
 		if "" == userID {
@@ -37,9 +38,12 @@ func NewStartQuizHandler(repo db.SessionRepo, rp *rp.Reporter) bot.Handler {
 		log.Infof("Starting new quiz for %s", userID)
 		//handle start, first question
 
-		questions, err := opentdb.NewClient().GetQuestions(questionsCount)
+		questions, err := openTdbClient.GetQuestions(questionsCount)
 		if err != nil {
 			return nil, err
+		}
+		if len(questions) < 1 {
+			return nil, errors.New("Questions for a quiz cannot be retrieved")
 		}
 
 		session := &db.QuizSession{

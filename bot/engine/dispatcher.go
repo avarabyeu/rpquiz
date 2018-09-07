@@ -34,6 +34,7 @@ type (
 		NLP        *nlp.IntentParser
 	}
 
+	//Request is a general abstraction over user requests
 	Request interface {
 		GetRaw() string
 	}
