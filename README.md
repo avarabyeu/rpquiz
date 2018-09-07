@@ -10,7 +10,7 @@
 | RP_PROJECT     |                           | Project results will be reported to |
 | TG_TOKEN       |                           | Telegram Token                      |
 | DB_FILE        | qabot.db                  | Internal Session DB file name       |
-
+| LOGGING_LEVEL  | info                      | Logging level:debug,info,warn,error |
 
 ### Running in DEV mode (live reloading in enabled)
 ```sh
