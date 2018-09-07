@@ -26,7 +26,7 @@ func (r *Reporter) StartTest(launchID, sID, question string, callback func(strin
 
 		rs, err := r.rp.StartChildTest(sID, &gorp.StartTestRQ{
 			LaunchID: launchID,
-			Type:     "test",
+			Type:     "step",
 			StartRQ: gorp.StartRQ{
 				StartTime: gorp.Timestamp{Time: time.Now()},
 				Name:      question,
