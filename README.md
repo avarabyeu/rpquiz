@@ -14,11 +14,11 @@
 
 ### Running in DEV mode (live reloading in enabled)
 ```sh
-docker-compose up --build --force-recreate
+    docker-compose up --build --force-recreate
 ```
 
 
 ### Building and running in production mode
 ```sh
-docker-compose -f docker-compose-prod.yml up -d --build --force-recreate
+    docker-compose -f docker-compose-prod.yml up -d --build --force-recreate
 ```
