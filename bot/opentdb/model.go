@@ -53,7 +53,7 @@ func (c Client) GetQuestions(count int) ([]*Question, error) {
 
 //GetPredefinedQuestions retrieves given amount of predefined questions
 func (c Client) GetPredefinedQuestions(count int) ([]*Question, error) {
-	jsonFile, err := os.Open("rpQuestions.json")
+	jsonFile, _ := os.Open("rpQuestions.json")
 	byteValue, err := ioutil.ReadAll(jsonFile)
 	var q response
 	json.Unmarshal(byteValue, &q)
