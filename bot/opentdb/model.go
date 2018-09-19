@@ -3,6 +3,9 @@ package opentdb
 import (
 	"gopkg.in/resty.v1"
 	"strconv"
+	"io/ioutil"
+	"encoding/json"
+	"os"
 )
 
 const openTdbURL = "https://opentdb.com"
@@ -45,5 +48,14 @@ func (c Client) GetQuestions(count int) ([]*Question, error) {
 		SetQueryParam("encode", "url3986").
 		SetResult(&q).
 		Get("/api.php")
+	return q.Results, err
+}
+
+//GetQuestions retrieves given amount of predifined questions
+func (c Client) GetPredefinedQuestions(count int) ([]*Question, error) {
+	jsonFile, err := os.Open("rpQuestions.json")
+	byteValue, err := ioutil.ReadAll(jsonFile)
+	var q response
+	json.Unmarshal(byteValue, &q)
 	return q.Results, err
 }
