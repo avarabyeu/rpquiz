@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 	"encoding/json"
 	"os"
+	"math/rand"
+	"time"
 )
 
 const openTdbURL = "https://opentdb.com"
@@ -51,11 +53,19 @@ func (c Client) GetQuestions(count int) ([]*Question, error) {
 	return q.Results, err
 }
 
-//GetPredefinedQuestions retrieves given amount of predefined questions
-func (c Client) GetPredefinedQuestions(count int) ([]*Question, error) {
-	jsonFile, _ := os.Open("rpQuestions.json")
+//GetPredefinedQuestions get number of random questions
+func GetPredefinedQuestions(count int) ([]*Question, error) {
+	var res response
+	jsonFile, err := os.Open("rpQuestions.json")
+
+	if err != nil {
+		return nil, err
+	}
+
 	byteValue, err := ioutil.ReadAll(jsonFile)
-	var q response
-	json.Unmarshal(byteValue, &q)
-	return q.Results, err
+	json.Unmarshal(byteValue, &res)
+
+	rand.Seed(time.Now().UnixNano())
+	rand.Shuffle(len(res.Results), func(i, j int) { res.Results[i], res.Results[j] = res.Results[j], res.Results[i] })
+	return res.Results[:count], err
 }
