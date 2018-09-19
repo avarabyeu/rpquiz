@@ -8,9 +8,9 @@
       "question": " How many custom defect types (for one defect type group) you can add to ReportPortal?",
       "correct_answer": " 10",
       "incorrect_answers": [
-        " 5 ",
+        "5 ",
         "15",
-        " As I wish "
+        "As I wish"
       ]
     },
     {
@@ -30,9 +30,9 @@
       "type": "multiple",
       "difficulty": "medium",
       "question": "How does ReportPortal calculate passing rate for the widget Passing rate summary?",
-      "correct_answer": "All passed test cases in the filter/ All test cases in the filter*100%",
+      "correct_answer": "Ratio of all passed test cases in the filter to all test cases in the filter",
       "incorrect_answers": [
-        " All launches with status passed in the filter/ All launches in the filter *100%",
+        "Ratio of all launches with status passed in the filter to all launches in the filter",
         "ReportPortal does"
       ]
     },
@@ -41,10 +41,10 @@
       "type": " multiple",
       "difficulty": "medium",
       "question": " How old ReportPortal is?",
-      "correct_answer": "  5 years",
+      "correct_answer": "5 years",
       "incorrect_answers": [
-        " 2 years",
-        " 2 years",
+        "2 years",
+        "3 years",
         "How many I remember myself, Report Portal was"
       ]
     },
@@ -100,7 +100,7 @@
       "category": "Data Base",
       "type": " multiple",
       "difficulty": "medium",
-      "question": " In which version ReportPortal will have moved to ReactJS and PostgreSQL?",
+      "question": "In which version ReportPortal will have moved to ReactJS and PostgreSQL?",
       "correct_answer": " 5.0",
       "incorrect_answers": [
         "10.1.2",
