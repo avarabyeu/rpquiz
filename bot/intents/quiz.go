@@ -15,7 +15,7 @@ import (
 	"github.com/avarabyeu/rpquiz/bot/opentdb"
 )
 
-const questionsCount = 5
+const questionsCount = 6
 
 //NewStartQuizHandler creates new start intent handler - greeting and first question
 func NewStartQuizHandler(repo db.SessionRepo, rp *rp.Reporter) bot.Handler {

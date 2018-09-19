@@ -8,6 +8,7 @@ import (
 	"os"
 	"math/rand"
 	"time"
+	"path/filepath"
 )
 
 const openTdbURL = "https://opentdb.com"
@@ -57,8 +58,8 @@ func (c Client) GetQuestions(count int) ([]*Question, error) {
 func GetPredefinedQuestions(count int) ([]*Question, error) {
 	var res response
 
-	dir, _ := os.Getwd()
-	dir += "rpQuestions.json"
+	dir, _ := filepath.Abs("./")
+	dir += "/rpQuestions.json"
 	jsonFile, err := os.Open(dir)
 
 	if err != nil {
