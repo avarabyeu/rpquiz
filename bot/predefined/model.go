@@ -30,6 +30,7 @@ type (
 	}
 )
 
+//NewClient initialize list of predefined questions
 func NewClient() *Client {
 	var q response
 	jsonFile, _ := os.Open("rpQuestions.json")
@@ -40,6 +41,7 @@ func NewClient() *Client {
 	}
 }
 
+//GetPredefinedQuestions get number of random questions
 func (c Client) GetPredefinedQuestions(count int) ([]*Question, error) {
 	rand.Seed(time.Now().UnixNano())
 	rand.Shuffle(len(c.res.Results), func(i, j int) { c.res.Results[i], c.res.Results[j] = c.res.Results[j], c.res.Results[i] })
