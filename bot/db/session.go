@@ -1,11 +1,13 @@
 package db
 
-import "github.com/avarabyeu/rpquiz/bot/opentdb"
+import (
+	"github.com/avarabyeu/rpquiz/bot/predefined"
+)
 
 //QuizSession DB model
 type QuizSession struct {
 	ID        string `storm:"id"`
-	Questions []*opentdb.Question
+	Questions []*predefined.Question
 	LaunchID  string
 	SuiteID   string
 	TestID    string

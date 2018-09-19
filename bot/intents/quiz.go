@@ -7,19 +7,19 @@ import (
 	"github.com/avarabyeu/rpquiz/bot/db"
 	"github.com/avarabyeu/rpquiz/bot/engine"
 	"github.com/avarabyeu/rpquiz/bot/engine/ctx"
-	"github.com/avarabyeu/rpquiz/bot/opentdb"
 	"github.com/avarabyeu/rpquiz/bot/rp"
 	"github.com/pkg/errors"
 	"math/rand"
 	"net/url"
 	"strings"
+	"github.com/avarabyeu/rpquiz/bot/predefined"
 )
 
 const questionsCount = 5
 
 //NewStartQuizHandler creates new start intent handler - greeting and first question
 func NewStartQuizHandler(repo db.SessionRepo, rp *rp.Reporter) bot.Handler {
-	openTdbClient := opentdb.NewClient()
+	predefinedClient := predefined.NewClient()
 	return bot.NewHandlerFunc(func(ctx context.Context, rq bot.Request) ([]*bot.Response, error) {
 		userID := botctx.GetUserID(ctx)
 		if "" == userID {
@@ -38,7 +38,7 @@ func NewStartQuizHandler(repo db.SessionRepo, rp *rp.Reporter) bot.Handler {
 		log.Infof("Starting new quiz for %s[%s]", userName, userID)
 		//handle start, first question
 
-		questions, err := openTdbClient.GetQuestions(questionsCount)
+		questions, err := predefinedClient.GetPredefinedQuestions(questionsCount)
 		if err != nil {
 			return nil, err
 		}
@@ -221,7 +221,7 @@ func (h *QuizIntentHandler) handleAnswer(rq bot.Request, session *db.QuizSession
 
 }
 
-func askQuestion(q *opentdb.Question) *bot.Response {
+func askQuestion(q *predefined.Question) *bot.Response {
 	qText, _ := url.PathUnescape(q.Question)
 	rs := bot.NewResponse().WithText(qText)
 	var btns []*bot.Button
