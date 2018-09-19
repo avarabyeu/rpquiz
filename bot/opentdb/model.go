@@ -56,7 +56,10 @@ func (c Client) GetQuestions(count int) ([]*Question, error) {
 //GetPredefinedQuestions get number of random questions
 func GetPredefinedQuestions(count int) ([]*Question, error) {
 	var res response
-	jsonFile, err := os.Open("rpQuestions.json")
+
+	dir, _ := os.Getwd()
+	dir += "rpQuestions.json"
+	jsonFile, err := os.Open(dir)
 
 	if err != nil {
 		return nil, err
