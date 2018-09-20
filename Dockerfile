@@ -23,11 +23,13 @@ WORKDIR $WORKDIR
 
 #COPY glide.lock glide.yaml Makefile ./
 COPY Gopkg.toml Gopkg.lock Makefile ./
+COPY rpQuestions.json ${WORKDIR}
 RUN dep ensure --vendor-only
 
 #RUN make build
 
 ENV VOCAB_DIR=${WORKDIR}/nlp/vocab/en-us
+ENV QUESTION_FILE=${WORKDIR}/rpQuestions.json
 
 
 

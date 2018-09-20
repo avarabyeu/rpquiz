@@ -59,7 +59,7 @@ func NewStartQuizHandler(repo db.SessionRepo, rp *rp.Reporter) bot.Handler {
 		q := askQuestion(questions[0])
 
 		//start launch and root suite in RP
-		rp.StartLaunch(fmt.Sprintf("Quiz by %s", userName), func(launchID, sID string, e error) error {
+		rp.StartLaunch(fmt.Sprintf("SEC-RP-quiz:%s", userName), func(launchID, sID string, e error) error {
 			if err != nil {
 				return err
 			}
@@ -157,7 +157,7 @@ func (h *QuizIntentHandler) Handle(ctx context.Context, rq bot.Request) ([]*bot.
 			WithText(fmt.Sprintf("Thank you! You passed a quiz! Your score is %d", calculateScore(session))),
 			bot.NewResponse().
 				WithText(fmt.Sprintf("Don't forget to star us!\n%s",
-					markdownLink("https://github.com/avarabyeu/rpquiz"))),
+				markdownLink("https://github.com/avarabyeu/rpquiz"))),
 			bot.NewResponse().WithText(markdownLink("https://github.com/reportportal/reportportal"))), nil
 
 	}

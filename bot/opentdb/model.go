@@ -56,7 +56,7 @@ func (c Client) GetQuestions(count int) ([]*Question, error) {
 //GetPredefinedQuestions get number of random questions
 func GetPredefinedQuestions(count int) ([]*Question, error) {
 	var res response
-	dir := "go/src/github.com/avarabyeu/rpquiz/bot/opentdb/rpQuestions.json"
+	dir := os.Getenv("QUESTION_FILE")
 	jsonFile, err := os.Open(dir)
 
 	if err != nil {

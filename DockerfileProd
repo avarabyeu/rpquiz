@@ -23,6 +23,7 @@ RUN python -m venv /venv \
 
 
 ENV VOCAB_DIR=${WORKDIR}/nlp/vocab/en-us
+ENV QUESTION_FILE=/usr/bin/rpQuestions.json
 # uWSGI configuration (customize as needed):
 ENV FLASK_APP=/nlp/wsgi.py UWSGI_WSGI_FILE=/nlp/wsgi.py UWSGI_SOCKET=:3031 UWSGI_HTTP=:5000 UWSGI_VIRTUALENV=/venv UWSGI_MASTER=1 UWSGI_WORKERS=2 UWSGI_THREADS=8 UWSGI_LAZY_APPS=1 UWSGI_WSGI_ENV_BEHAVIOR=holy PYTHONDONTWRITEBYTECODE=1
 ENV PATH="/venv/bin:${PATH}"
@@ -30,6 +31,7 @@ ENV PYTHONPATH="/nlp"
 
 ADD nlp/ /nlp/
 COPY --from=go-build /go/src/github.com/avarabyeu/rpquiz/bin/rpquiz /usr/bin/rpquiz
+COPY rpQuestions.js /usr/bin/
 
 ## Building python stuff
 ADD supervisor.ini /etc/supervisor.ini
