@@ -31,7 +31,7 @@ ENV PYTHONPATH="/nlp"
 
 ADD nlp/ /nlp/
 COPY --from=go-build /go/src/github.com/avarabyeu/rpquiz/bin/rpquiz /usr/bin/rpquiz
-COPY rpQuestions.js /usr/bin/
+COPY --from=go-build /go/src/github.com/avarabyeu/rpquiz/bot/rpQuestions.js /usr/bin/
 
 ## Building python stuff
 ADD supervisor.ini /etc/supervisor.ini

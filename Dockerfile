@@ -23,7 +23,7 @@ WORKDIR $WORKDIR
 
 #COPY glide.lock glide.yaml Makefile ./
 COPY Gopkg.toml Gopkg.lock Makefile ./
-COPY rpQuestions.json ${WORKDIR}
+COPY bot/rpQuestions.json ${WORKDIR}
 RUN dep ensure --vendor-only
 
 #RUN make build
