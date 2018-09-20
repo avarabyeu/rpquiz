@@ -40,6 +40,7 @@ func (b *Bot) Start() error {
 			var message string
 			var tMessage *tgbotapi.Message
 			var user string
+			var fullName string
 			var userID string
 
 			callback := false
@@ -48,11 +49,13 @@ func (b *Bot) Start() error {
 				message = update.Message.Text
 				tMessage = update.Message
 				user = update.Message.From.UserName
+				fullName = update.Message.From.FirstName + " " + update.Message.From.LastName
 				userID = strconv.Itoa(update.Message.From.ID)
 			} else if update.CallbackQuery != nil {
 				message = update.CallbackQuery.Data
 				tMessage = update.CallbackQuery.Message
 				user = update.CallbackQuery.From.UserName
+				fullName = update.CallbackQuery.From.FirstName + " " + update.Message.From.LastName
 				userID = strconv.Itoa(update.CallbackQuery.From.ID)
 				callback = true
 			} else {
@@ -61,6 +64,8 @@ func (b *Bot) Start() error {
 
 			if "" != user {
 				log.Debugf("[%s] %s", user, message)
+			} else {
+				user = fullName
 			}
 
 			go func(update *tgbotapi.Message) {

@@ -32,7 +32,7 @@ func NewStartQuizHandler(repo db.SessionRepo, rp *rp.Reporter) bot.Handler {
 			}
 		}
 
-		userName := botctx.GetUserID(ctx)
+		userName := botctx.GetUserName(ctx)
 
 		log.Infof("Starting new quiz for %s[%s]", userName, userID)
 		//handle start, first question
