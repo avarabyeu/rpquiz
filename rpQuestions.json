@@ -77,7 +77,8 @@
       "type": " multiple",
       "difficulty": "medium",
       "question": "What is the killing feature of ReportPortal?",
-      "correct_answer": [
+      "correct_answer" : "All features are killing features",
+      "incorrect_answers": [
         "Widgets",
         "ML Analyzer",
         "Usability",
@@ -113,11 +114,12 @@
       "type": " multiple",
       "difficulty": "medium",
       "question": "What is common between Homer Simpson and Report Portal?",
-      "correct_answer": "Donuts",
+      "correct_answer": "All answers are correct",
       "incorrect_answers": [
         "Can predict future",
         "Everybody loves",
-        "Well drawn"
+        "Well drawn",
+        "Donuts"
       ]
     },
     {

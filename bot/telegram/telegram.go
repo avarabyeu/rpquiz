@@ -55,7 +55,7 @@ func (b *Bot) Start() error {
 				message = update.CallbackQuery.Data
 				tMessage = update.CallbackQuery.Message
 				user = update.CallbackQuery.From.UserName
-				fullName = update.CallbackQuery.From.FirstName + " " + update.Message.From.LastName
+				fullName = update.CallbackQuery.From.FirstName + " " + update.CallbackQuery.From.LastName
 				userID = strconv.Itoa(update.CallbackQuery.From.ID)
 				callback = true
 			} else {
