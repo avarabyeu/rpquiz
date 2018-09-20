@@ -32,7 +32,7 @@ func NewStartQuizHandler(repo db.SessionRepo, rp *rp.Reporter) bot.Handler {
 			}
 		}
 
-		userName := botctx.GetUserName(ctx)
+		userName := botctx.GetUserID(ctx)
 
 		log.Infof("Starting new quiz for %s[%s]", userName, userID)
 		//handle start, first question
@@ -59,7 +59,7 @@ func NewStartQuizHandler(repo db.SessionRepo, rp *rp.Reporter) bot.Handler {
 		q := askQuestion(questions[0])
 
 		//start launch and root suite in RP
-		rp.StartLaunch(fmt.Sprintf("SEC-RP-quiz:%s", userName), func(launchID, sID string, e error) error {
+		rp.StartLaunch(fmt.Sprintf("SEC-RP-quiz: %s", userName), func(launchID, sID string, e error) error {
 			if err != nil {
 				return err
 			}
@@ -80,7 +80,7 @@ func NewStartQuizHandler(repo db.SessionRepo, rp *rp.Reporter) bot.Handler {
 
 		})
 
-		return bot.Respond(bot.NewResponse().WithText(fmt.Sprintf("Hi %s! We are starting new quiz!", userName)), q), nil
+		return bot.Respond(bot.NewResponse().WithText(fmt.Sprintf("Hi %s! We are starting a new quiz!", userName)), q), nil
 	})
 }
 
