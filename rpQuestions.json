@@ -5,7 +5,7 @@
       "category": "ReportPortal",
       "type": "multiple",
       "difficulty": "medium",
-      "question": " How many custom defect types (for one defect type group) you can add to ReportPortal?",
+      "question": "How many custom defect types (for one defect type group) you can add to ReportPortal?",
       "correct_answer": " 10",
       "incorrect_answers": [
         "5",
