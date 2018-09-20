@@ -8,7 +8,7 @@
       "question": " How many custom defect types (for one defect type group) you can add to ReportPortal?",
       "correct_answer": " 10",
       "incorrect_answers": [
-        "5 ",
+        "5",
         "15",
         "As I wish"
       ]
@@ -17,12 +17,12 @@
       "category": " Widgets",
       "type": "multiple",
       "difficulty": "medium",
-      "question": "Which widget shows tests with the most often reason of failure Product Bug?",
+      "question": "What widget shows tests with the most often reason of failure Product Bug?",
       "correct_answer": " Most failed test-cases table (TOP-20) ",
       "incorrect_answers": [
-        " Launch statistics chart ",
-        " Launches table ",
-        " Failed cases trend chart"
+        "Launch statistics chart",
+        "Launches table",
+        "Failed cases trend chart"
       ]
     },
     {
