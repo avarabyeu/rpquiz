@@ -79,7 +79,7 @@
       "type": " multiple",
       "difficulty": "medium",
       "question": "What is the latest ReportPortal version?",
-      "correct_answer": "4.3",
+      "correct_answer": "4.2",
       "incorrect_answers": [
         "10.1.2",
         "5.2",
@@ -229,7 +229,7 @@
       "correct_answer": "Error and higher",
       "incorrect_answers": [
         "All levels",
-        "only Error and Info",
+        "Info and higher",
         "Trace and higher"
       ]
     },
