@@ -26,21 +26,10 @@
       ]
     },
     {
-      "category": " Widgets",
+      "category": "ReportPortal",
       "type": "multiple",
       "difficulty": "medium",
-      "question": "How does ReportPortal calculate passing rate for the widget Passing rate summary?",
-      "correct_answer": "Ratio of all passed test cases in the filter to all test cases in the filter",
-      "incorrect_answers": [
-        "Ratio of all launches with status passed in the filter to all launches in the filter",
-        "ReportPortal does"
-      ]
-    },
-    {
-      "category": "ReportPortal",
-      "type": " multiple",
-      "difficulty": "medium",
-      "question": " How old ReportPortal is?",
+      "question": "How old ReportPortal is?",
       "correct_answer": "5 years",
       "incorrect_answers": [
         "2 years",
@@ -52,7 +41,7 @@
       "category": "Data base",
       "type": " multiple",
       "difficulty": "medium",
-      "question": "Which data base is ReportPortal using? ",
+      "question": "What database is ReportPortal using? ",
       "correct_answer": "MongoDB",
       "incorrect_answers": [
         "PostgreSQL",
@@ -64,7 +53,7 @@
       "category": "Data base",
       "type": " multiple",
       "difficulty": "medium",
-      "question": "Which data base will have been used in 5.0 version of ReportPortal?",
+      "question": "What database will have been used in 5.0 version of ReportPortal?",
       "correct_answer": "PostgreSQL",
       "incorrect_answers": [
         "MongoDB",
@@ -77,7 +66,7 @@
       "type": " multiple",
       "difficulty": "medium",
       "question": "What is the killing feature of ReportPortal?",
-      "correct_answer" : "All features are killing features",
+      "correct_answer" : "All features are killing",
       "incorrect_answers": [
         "Widgets",
         "ML Analyzer",
@@ -89,7 +78,7 @@
       "category": "ReportPortal",
       "type": " multiple",
       "difficulty": "medium",
-      "question": "Which is the latest ReportPortal version? ",
+      "question": "What is the latest ReportPortal version?",
       "correct_answer": "4.3",
       "incorrect_answers": [
         "10.1.2",
@@ -173,7 +162,7 @@
       "question": "What ReportPortal is?",
       "correct_answer": "AI-powered Test Automation Dashboard",
       "incorrect_answers": [
-        "Management system ",
+        "Management system",
         "Accounting system",
         "Portal with reports"
       ]
@@ -204,7 +193,7 @@
       "category": "ReportPortal",
       "type": " multiple",
       "difficulty": "medium",
-      "question": "What role is not in Report Portal?",
+      "question": "What role is not presented in Report Portal?",
       "correct_answer": "Tester",
       "incorrect_answers": [
         "Member",
@@ -216,7 +205,7 @@
       "category": "BTS",
       "type": "boolean",
       "difficulty": "medium",
-      "question": "Could you post issues with type Epic to Jira from ReportPortal?",
+      "question": "Can you post issues with type Epic to Jira from ReportPortal?",
       "correct_answer": "True",
       "incorrect_answers": [
         "False"
@@ -226,7 +215,7 @@
       "category": "ReportPortal",
       "type": "boolean",
       "difficulty": "medium",
-      "question": "Could you add .HAR as an attachment to ReportPortal?",
+      "question": "Can you add .HAR as an attachment to ReportPortal?",
       "correct_answer": "True",
       "incorrect_answers": [
         "False"
