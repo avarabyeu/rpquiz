@@ -7,12 +7,12 @@ import (
 	"github.com/avarabyeu/rpquiz/bot/db"
 	"github.com/avarabyeu/rpquiz/bot/engine"
 	"github.com/avarabyeu/rpquiz/bot/engine/ctx"
+	"github.com/avarabyeu/rpquiz/bot/opentdb"
 	"github.com/avarabyeu/rpquiz/bot/rp"
 	"github.com/pkg/errors"
 	"math/rand"
 	"net/url"
 	"strings"
-	"github.com/avarabyeu/rpquiz/bot/opentdb"
 )
 
 const questionsCount = 6
@@ -37,7 +37,7 @@ func NewStartQuizHandler(repo db.SessionRepo, rp *rp.Reporter) bot.Handler {
 		log.Infof("Starting new quiz for %s[%s]", userName, userID)
 		//handle start, first question
 
-		questions, err := opentdb.GetPredefinedQuestions(questionsCount)
+		questions, err := opentdb.NewClient().GetQuestions(questionsCount)
 		if err != nil {
 			return nil, err
 		}
@@ -59,7 +59,7 @@ func NewStartQuizHandler(repo db.SessionRepo, rp *rp.Reporter) bot.Handler {
 		q := askQuestion(questions[0])
 
 		//start launch and root suite in RP
-		rp.StartLaunch(fmt.Sprintf("SEC-RP-quiz: %s", userName), func(launchID, sID string, e error) error {
+		rp.StartLaunch(fmt.Sprintf("FOSDEM-RP-quiz: %s", userName), func(launchID, sID string, e error) error {
 			if err != nil {
 				return err
 			}
@@ -157,7 +157,7 @@ func (h *QuizIntentHandler) Handle(ctx context.Context, rq bot.Request) ([]*bot.
 			WithText(fmt.Sprintf("Thank you! You passed a quiz! Your score is %d", calculateScore(session))),
 			bot.NewResponse().
 				WithText(fmt.Sprintf("Don't forget to star us!\n%s",
-				markdownLink("https://github.com/reportportal/reportportal"))),
+					markdownLink("https://github.com/reportportal/reportportal"))),
 			bot.NewResponse().WithText(markdownLink("https://github.com/avarabyeu/rpquiz"))), nil
 
 	}
@@ -216,7 +216,7 @@ func (h *QuizIntentHandler) handleAnswer(rq bot.Request, session *db.QuizSession
 		}
 	})
 
-	return getAnswerText(passed, correctAnswer), nil
+	return getAnswerText(passed, correctAnswer, h.rp, session.TestID), nil
 
 }
 
@@ -266,7 +266,7 @@ func quiteSessionGracefully(repo db.SessionRepo, rp *rp.Reporter, session *db.Qu
 	return nil
 }
 
-func getAnswerText(passed bool, correctAnswer string) (text string) {
+func getAnswerText(passed bool, correctAnswer string, rp *rp.Reporter, testID string) (text string) {
 
 	if passed {
 		text = "That's correct!\n"
@@ -276,6 +276,11 @@ func getAnswerText(passed bool, correctAnswer string) (text string) {
 
 	if !passed {
 		text = fmt.Sprintf("%sCorrect answer is '%s'", text, correctAnswer)
+		rp.AttachInfoLog(text, testID, func(err error) {
+			if nil != err {
+				log.WithError(err).Error("Cannot finish launch")
+			}
+		})
 	}
 
 	return

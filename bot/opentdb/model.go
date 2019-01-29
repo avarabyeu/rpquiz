@@ -1,12 +1,12 @@
 package opentdb
 
 import (
-	"gopkg.in/resty.v1"
-	"strconv"
-	"io/ioutil"
 	"encoding/json"
-	"os"
+	"gopkg.in/resty.v1"
+	"io/ioutil"
 	"math/rand"
+	"os"
+	"strconv"
 	"time"
 )
 
@@ -47,7 +47,9 @@ func (c Client) GetQuestions(count int) ([]*Question, error) {
 	_, err := c.http.
 		NewRequest().
 		SetQueryParam("amount", strconv.Itoa(count)).
+		SetQueryParam("category", "18").
 		SetQueryParam("encode", "url3986").
+		SetQueryParam("difficulty", "easy").
 		SetResult(&q).
 		Get("/api.php")
 	return q.Results, err

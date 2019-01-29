@@ -55,6 +55,21 @@ func (r *Reporter) FinishTest(testID string, pass bool, callback func(error)) {
 
 }
 
+//FinishTest finishes test in RP
+func (r *Reporter) AttachInfoLog(message string, testID string, callback func(error)) {
+	go func() {
+		log.Debugf("Attaching log %s in RP", testID)
+		_, err := r.rp.SaveLog(&gorp.SaveLogRQ{
+			ItemID:  testID,
+			Message: message,
+			LogTime: gorp.Timestamp{Time: time.Now()},
+			Level:   "info",
+		})
+		callback(err)
+	}()
+
+}
+
 //StartLaunch starts launch in report portal
 func (r *Reporter) StartLaunch(name string, callback func(string, string, error) error) {
 	go func() {

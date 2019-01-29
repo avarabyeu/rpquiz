@@ -12,7 +12,7 @@ def create_application():
 
 def create_container():
     container = IntentContainer('intent_cache')
-    dir = os.getenv('VOCAB_DIR', '/qabot/vocab/en-us/')
+    dir = os.getenv('VOCAB_DIR', '/Users/pavel_bortnik/workspace/go/src/github.com/avarabyeu/rpquiz/nlp/vocab/en-us')
     for file in os.listdir(dir):
         print(file)
         if file.endswith(".intent"):
