@@ -5,81 +5,44 @@
       "category": "ReportPortal",
       "type": "multiple",
       "difficulty": "medium",
-      "question": "How many custom defect types (for one defect type group) you can add to ReportPortal?",
-      "correct_answer": " 10",
+      "question": "Who is the product owner of ReportPortal?",
+      "correct_answer": "Dzmitry Humianiuk",
       "incorrect_answers": [
-        "5",
-        "15",
-        "As I wish"
-      ]
-    },
-    {
-      "category": " Widgets",
-      "type": "multiple",
-      "difficulty": "medium",
-      "question": "What widget shows tests with the most often reason of failure Product Bug?",
-      "correct_answer": " Most failed test-cases table (TOP-20) ",
-      "incorrect_answers": [
-        "Launch statistics chart",
-        "Launches table",
-        "Failed cases trend chart"
+        "Pavel Bortnik",
+        "Andrei Varabyeu",
+        "Bender Bending Rodriguez"
       ]
     },
     {
       "category": "ReportPortal",
       "type": "multiple",
       "difficulty": "medium",
-      "question": "How old ReportPortal is?",
-      "correct_answer": "5 years",
+      "question": "ReportPortal is an open source product that is sponsored by:",
+      "correct_answer": "Epam",
       "incorrect_answers": [
-        "2 years",
-        "3 years",
-        "How many I remember myself, Report Portal was"
+        "Google",
+        "jFrog Bintray",
+        "20th Century Fox"
       ]
     },
     {
-      "category": "Data base",
+      "category": "ReportPortal",
       "type": " multiple",
       "difficulty": "medium",
-      "question": "What database is ReportPortal using? ",
-      "correct_answer": "MongoDB",
+      "question": "What database does ReportPortal use?",
+      "correct_answer": "NoSQL MongoDB",
       "incorrect_answers": [
         "PostgreSQL",
         "MySQL",
-        "Text files"
-      ]
-    },
-    {
-      "category": "Data base",
-      "type": " multiple",
-      "difficulty": "medium",
-      "question": "What database will have been used in 5.0 version of ReportPortal?",
-      "correct_answer": "PostgreSQL",
-      "incorrect_answers": [
-        "MongoDB",
-        "MySQL",
-        "Text files"
+        "Dark matter"
       ]
     },
     {
       "category": "ReportPortal",
       "type": " multiple",
       "difficulty": "medium",
-      "question": "What is the killing feature of ReportPortal?",
-      "correct_answer" : "All features are killing",
-      "incorrect_answers": [
-        "Widgets",
-        "ML Analyzer",
-        "Usability",
-        "Real time analytics"
-      ]
-    },
-    {
-      "category": "ReportPortal",
-      "type": " multiple",
-      "difficulty": "medium",
-      "question": "What is the latest ReportPortal version?",
-      "correct_answer": "4.2",
+      "question": "What is the latest ReportPortal build version?",
+      "correct_answer": "4.3.7",
       "incorrect_answers": [
         "10.1.2",
         "5.2",
@@ -87,69 +50,46 @@
       ]
     },
     {
-      "category": "Data Base",
+      "category": "ReportPortal",
       "type": " multiple",
       "difficulty": "medium",
-      "question": "In which version ReportPortal will have moved to ReactJS and PostgreSQL?",
-      "correct_answer": " 5.0",
+      "question": "Who is in the default profile picture at ReportPortal demo instance?",
+      "correct_answer": "Monkey",
       "incorrect_answers": [
-        "10.1.2",
-        "5.2",
-        "4.3"
+        "Giraffe",
+        "Bart Simpson",
+        "Darth Vader"
       ]
     },
     {
       "category": "ReportPortal",
       "type": " multiple",
       "difficulty": "medium",
-      "question": "What is common between Homer Simpson and Report Portal?",
-      "correct_answer": "All answers are correct",
+      "question": "What is the project role of default profile at ReportPortal demo instance?",
+      "correct_answer": "Project Manager",
       "incorrect_answers": [
-        "Can predict future",
-        "Everybody loves",
-        "Well drawn",
-        "Donuts"
+        "Administrator",
+        "Owner",
+        "The Creator"
       ]
     },
     {
       "category": "ReportPortal",
       "type": " multiple",
       "difficulty": "medium",
-      "question": "Where you can find test parameters in ReportPortal?",
-      "correct_answer": "Step view",
+      "question": "What is the URL of ReportPortal demo instance?",
+      "correct_answer": "http://web.demo.reportportal.io",
       "incorrect_answers": [
-        "Launch view",
-        "Suite view",
-        "There is no test parameters in ReportPortal"
+        "reportportal.demo.io",
+        "https://github.com/reportportal",
+        "https://www.imdb.com/title/tt0149460/"
       ]
     },
     {
-      "category": "Integrations",
-      "type": " multiple",
+      "category": "ReportPortal",
+      "type": "multiple",
       "difficulty": "medium",
-      "question": "How many integrations with test frameworks does ReportPortal have?",
-      "correct_answer": "23",
-      "incorrect_answers": [
-        "4",
-        "82",
-        "9"
-      ]
-    },
-    {
-      "category": "Integrations",
-      "type": "boolean",
-      "difficulty": "medium",
-      "question": "Does ReportPortal have an integration with Cucumber 2?",
-      "correct_answer": "True",
-      "incorrect_answers": [
-        "False"
-      ]
-    },
-    {
-      "category": "Integrations",
-      "type": " multiple",
-      "difficulty": "medium",
-      "question": "Does ReportPortal have an integration with NightwatchJS?",
+      "question": "ReportPortal has an integration with TestNG",
       "correct_answer": "True",
       "incorrect_answers": [
         "False"
@@ -159,31 +99,37 @@
       "category": "ReportPortal",
       "type": " multiple",
       "difficulty": "medium",
-      "question": "What ReportPortal is?",
-      "correct_answer": "AI-powered Test Automation Dashboard",
+      "question": "ReportPortal has an integration with JUnit5",
+      "correct_answer": "True",
       "incorrect_answers": [
-        "Management system",
-        "Accounting system",
-        "Portal with reports"
+        "False"
       ]
     },
     {
-      "category": "BTS",
+      "category": "ReportPortal",
       "type": " multiple",
       "difficulty": "medium",
-      "question": "Which Bug Tracking System does ReportPortal work with?",
-      "correct_answer": "Rally, Jira",
+      "question": "ReportPortal has an integration with pytest",
+      "correct_answer": "True",
       "incorrect_answers": [
-        "Rally, Jira, TFS",
-        "Rally, Jira, TFS, Bugzilla",
-        "No integrations with BTS"
+        "False"
       ]
     },
     {
-      "category": "Analyzer",
-      "type": "boolean",
+      "category": "ReportPortal",
+      "type": " multiple",
       "difficulty": "medium",
-      "question": "Are launches in Debug mode counted in the Auto-Analysis?",
+      "question": "ReportPortal has an integration with PHPUnit",
+      "correct_answer": "True",
+      "incorrect_answers": [
+        "False"
+      ]
+    },
+    {
+      "category": "ReportPortal",
+      "type": " multiple",
+      "difficulty": "medium",
+      "question": "ReportPortal has an integration with TestingWhiz",
       "correct_answer": "False",
       "incorrect_answers": [
         "True"
@@ -193,54 +139,48 @@
       "category": "ReportPortal",
       "type": " multiple",
       "difficulty": "medium",
-      "question": "What role is not presented in Report Portal?",
-      "correct_answer": "Tester",
+      "question": "What is ReportPortal in common?",
+      "correct_answer": "AI-powered Test Automation Dashboard",
       "incorrect_answers": [
-        "Member",
-        "PM ",
-        "Customer"
-      ]
-    },
-    {
-      "category": "BTS",
-      "type": "boolean",
-      "difficulty": "medium",
-      "question": "Can you post issues with type Epic to Jira from ReportPortal?",
-      "correct_answer": "True",
-      "incorrect_answers": [
-        "False"
+        "Management system",
+        "Accounting system",
+        "Portal with reports"
       ]
     },
     {
       "category": "ReportPortal",
-      "type": "boolean",
+      "type": " multiple",
       "difficulty": "medium",
-      "question": "Can you add .HAR as an attachment to ReportPortal?",
-      "correct_answer": "True",
+      "question": "Which Bug Tracking System does ReportPortal support?",
+      "correct_answer": "Rally, Jira",
       "incorrect_answers": [
-        "False"
+        "Rally, Jira, TFS",
+        "Rally, Jira, TFS, Bugzilla",
+        "No integrations with BTS"
       ]
     },
     {
-      "category": "Analyzer",
-      "type": "multiple",
+      "category": "ReportPortal",
+      "type": " multiple",
       "difficulty": "medium",
-      "question": "Which log levels are taken into account by Analyzer?",
-      "correct_answer": "Error and higher",
+      "question": "What file must be created for integration with Java automation testing frameworks?",
+      "correct_answer": "reportportal.properties",
       "incorrect_answers": [
-        "All levels",
-        "Info and higher",
-        "Trace and higher"
+        "REPORT_PORTAL.YML",
+        "integration.properties",
+        "java.properties"
       ]
     },
     {
-      "category": "Analyzer",
-      "type": "boolean",
+      "category": "ReportPortal",
+      "type": " multiple",
       "difficulty": "medium",
-      "question": "Can you reset the accumulated experience of the Analyzer?",
-      "correct_answer": "True",
+      "question": "What languages does ReportPortal UI support?",
+      "correct_answer": "English, Russian",
       "incorrect_answers": [
-        "False"
+        "Belarusian",
+        "English, Chinese",
+        "Alien language"
       ]
     }
   ]

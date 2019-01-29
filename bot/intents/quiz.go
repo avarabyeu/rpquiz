@@ -15,7 +15,7 @@ import (
 	"strings"
 )
 
-const questionsCount = 6
+const questionsCount = 8
 
 //NewStartQuizHandler creates new start intent handler - greeting and first question
 func NewStartQuizHandler(repo db.SessionRepo, rp *rp.Reporter) bot.Handler {
@@ -37,7 +37,7 @@ func NewStartQuizHandler(repo db.SessionRepo, rp *rp.Reporter) bot.Handler {
 		log.Infof("Starting new quiz for %s[%s]", userName, userID)
 		//handle start, first question
 
-		questions, err := opentdb.NewClient().GetQuestions(questionsCount)
+		questions, err := opentdb.GetPredefinedQuestions(questionsCount)
 		if err != nil {
 			return nil, err
 		}
@@ -153,17 +153,27 @@ func (h *QuizIntentHandler) Handle(ctx context.Context, rq bot.Request) ([]*bot.
 			}
 		})
 
-		return bot.Respond(bot.NewResponse().WithText(text), bot.NewResponse().
-			WithText(fmt.Sprintf("Thank you! You passed a quiz! Your score is %d", calculateScore(session))),
+		score := calculateScore(session)
+		prize := buildResponse(score)
+
+		return bot.Respond(bot.NewResponse().WithText(text), prize,
 			bot.NewResponse().
 				WithText(fmt.Sprintf("Don't forget to star us!\n%s",
-					markdownLink("https://github.com/reportportal/reportportal"))),
-			bot.NewResponse().WithText(markdownLink("https://github.com/avarabyeu/rpquiz"))), nil
+					markdownLink("https://github.com/reportportal/reportportal")))), nil
 
 	}
 
 	//should never happen :)
 	return bot.Respond(bot.NewResponse().WithText("hm..")), nil
+}
+
+func buildResponse(score int) *bot.Response {
+	if score == questionsCount {
+		return bot.NewResponse().WithText("Congratulations! You have correctly answered every single question " +
+			"and won a t-shirt and a sticker-pack! To take your prize, please ask the ReportPortal stand holder.")
+	}
+	return bot.NewResponse().WithText(fmt.Sprintf("Thank you for passing a quiz! You score is %d. To take your prize, "+
+		"please ask the ReportPortal stand holder.", score))
 }
 
 func (h *QuizIntentHandler) handleNewQuestion(session *db.QuizSession, currQuestion int) (*bot.Response, error) {
@@ -275,8 +285,8 @@ func getAnswerText(passed bool, correctAnswer string, rp *rp.Reporter, testID st
 	}
 
 	if !passed {
-		text = fmt.Sprintf("%sCorrect answer is '%s'", text, correctAnswer)
-		rp.AttachInfoLog(text, testID, func(err error) {
+		attachLog := fmt.Sprintf("Correct answer is '%s'", correctAnswer)
+		rp.AttachLog(attachLog, testID, "error", func(err error) {
 			if nil != err {
 				log.WithError(err).Error("Cannot finish launch")
 			}
