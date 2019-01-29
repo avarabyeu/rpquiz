@@ -182,6 +182,197 @@
         "English, Chinese",
         "Alien language"
       ]
+    },
+    {
+      "category": "ReportPortal",
+      "type": " multiple",
+      "difficulty": "medium",
+      "question": "How many steps is needed to get started with ReportPortal locally?",
+      "correct_answer": "4",
+      "incorrect_answers": [
+        "3",
+        "2",
+        "1"
+      ]
+    },
+    {
+      "category": "ReportPortal",
+      "type": " multiple",
+      "difficulty": "medium",
+      "question": "What do you need to install ReportPortal?",
+      "correct_answer": "Docker",
+      "incorrect_answers": [
+        "Patience",
+        "Netflix subscribe",
+        "Java"
+      ]
+    },
+    {
+      "category": "ReportPortal",
+      "type": " multiple",
+      "difficulty": "medium",
+      "question": "What do you need to install ReportPortal?",
+      "correct_answer": "Docker",
+      "incorrect_answers": [
+        "Patience",
+        "Netflix subscribe",
+        "Java"
+      ]
+    },
+    {
+      "category": "ReportPortal",
+      "type": " multiple",
+      "difficulty": "medium",
+      "question": "What kind of gateway is used by default?",
+      "correct_answer": "Traefik",
+      "incorrect_answers": [
+        "Fabio",
+        "NGINX",
+        "Wormholes"
+      ]
+    },
+    {
+      "category": "ReportPortal",
+      "type": " multiple",
+      "difficulty": "medium",
+      "question": "ReportPortal is a one common place for",
+      "correct_answer": "Managing all your automation results and reports",
+      "incorrect_answers": [
+        "Writing different automation test",
+        "Drinking coffee with colleagues",
+        "Developing an automation infrastructure"
+      ]
+    },
+    {
+      "category": "ReportPortal",
+      "type": " multiple",
+      "difficulty": "medium",
+      "question": "When automation test results are presented in ReportPortal?",
+      "correct_answer": "Real-time?",
+      "incorrect_answers": [
+        "After each suite is passed",
+        "After all tests are passed",
+        "Once in the morning per day"
+      ]
+    },
+    {
+      "category": "ReportPortal",
+      "type": " multiple",
+      "difficulty": "medium",
+      "question": "What issue category does not exit in Reportportal?",
+      "correct_answer": "Flaky Bug",
+      "incorrect_answers": [
+        "Product Bug",
+        "Automation Bug",
+        "System Issue"
+      ]
+    },
+    {
+      "category": "ReportPortal",
+      "type": " multiple",
+      "difficulty": "medium",
+      "question": "How many clents trust ReportPortal?",
+      "correct_answer": "More than 60",
+      "incorrect_answers": [
+        "50",
+        "10",
+        "Trust but verify"
+      ]
+    },
+    {
+      "category": "ReportPortal",
+      "type": " multiple",
+      "difficulty": "medium",
+      "question": "How many versions have been already released?",
+      "correct_answer": "17",
+      "incorrect_answers": [
+        "43",
+        "3",
+        "It hasn't released yet"
+      ]
+    },
+    {
+      "category": "ReportPortal",
+      "type": " multiple",
+      "difficulty": "medium",
+      "question": "What is the ReportPortal logo?",
+      "correct_answer": "Aperture",
+      "incorrect_answers": [
+        "Monkey",
+        "Guru",
+        "Bender"
+      ]
+    },
+    {
+      "category": "ReportPortal",
+      "type": " multiple",
+      "difficulty": "medium",
+      "question": "What kind of notifications can ReportPortal send?",
+      "correct_answer": "Email",
+      "incorrect_answers": [
+        "Slack",
+        "Telegram",
+        "All"
+      ]
+    },
+    {
+      "category": "ReportPortal",
+      "type": " multiple",
+      "difficulty": "medium",
+      "question": "How can ReportPortal make automation testers' lifes better?",
+      "correct_answer": "All",
+      "incorrect_answers": [
+        "Classify test failures and quickly observe statistics around the launch as a whole",
+        "Reduce time cost and analyze the failure reasons by Auto-Analyzer based on Machine Learning",
+        "Aggregate all info about test in one place: test history, logs, attachments"
+      ]
+    },
+    {
+      "category": "ReportPortal",
+      "type": " multiple",
+      "difficulty": "medium",
+      "question": "How can you track release readiness with ReportPortal?",
+      "correct_answer": "Use different widgets",
+      "incorrect_answers": [
+        "Send email notification",
+        "Call the police",
+        "Ask ReportPortal developers"
+      ]
+    },
+    {
+      "category": "ReportPortal",
+      "type": " multiple",
+      "difficulty": "medium",
+      "question": "Can you rename existed project in ReportPortal?",
+      "correct_answer": "No",
+      "incorrect_answers": [
+        "Yes",
+        "Only project manager can rename"
+      ]
+    },
+    {
+      "category": "ReportPortal",
+      "type": " multiple",
+      "difficulty": "medium",
+      "question": "What file can be imported as a automation tests launch by ReportPortal?",
+      "correct_answer": ".zip with .xml files inside",
+      "incorrect_answers": [
+        ".tar",
+        ".csv",
+        ".png"
+      ]
+    },
+    {
+      "category": "ReportPortal",
+      "type": " multiple",
+      "difficulty": "medium",
+      "question": "What panel doesn't exist in ReportPortal?",
+      "correct_answer": "History",
+      "incorrect_answers": [
+        "Dashboard",
+        "Launches",
+        "Debug"
+      ]
     }
   ]
 }
