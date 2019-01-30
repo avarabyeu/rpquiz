@@ -319,12 +319,12 @@
       "category": "ReportPortal",
       "type": " multiple",
       "difficulty": "medium",
-      "question": "How can ReportPortal make automation testers' lifes better?",
+      "question": "How can ReportPortal make automation testers' life better?",
       "correct_answer": "All",
       "incorrect_answers": [
-        "Classify test failures and quickly observe statistics around the launch as a whole",
-        "Reduce time cost and analyze the failure reasons by Auto-Analyzer based on Machine Learning",
-        "Aggregate all info about test in one place: test history, logs, attachments"
+        "Classify failures and observe statistics around the launch",
+        "Analyze the failure reasons by Auto-Analyzer",
+        "Aggregate all info about test in one place"
       ]
     },
     {
