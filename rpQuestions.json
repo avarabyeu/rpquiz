@@ -248,7 +248,7 @@
       "type": " multiple",
       "difficulty": "medium",
       "question": "When automation test results are presented in ReportPortal?",
-      "correct_answer": "Real-time?",
+      "correct_answer": "In real time",
       "incorrect_answers": [
         "After each suite is passed",
         "After all tests are passed",
